@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:haritashr/src/features/domain/entities/login/response/user.dart';
 
 class OtpVerificationScreen extends StatefulWidget {
   const OtpVerificationScreen({super.key});
@@ -35,7 +36,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
       return;
     }
 
-    setState(() => isVerifying = true);
+    /*setState(() => isVerifying = true);
 
     // Simulate API verification delay
     await Future.delayed(const Duration(seconds: 1));
@@ -43,7 +44,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
     setState(() => isVerifying = false);
 
     // Navigate to dashboard (success)
-    Navigator.pushReplacementNamed(context, '/dashboard');
+    Navigator.pushReplacementNamed(context, '/dashboard');*/
   }
 
   @override

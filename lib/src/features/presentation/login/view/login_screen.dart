@@ -15,13 +15,17 @@ class _LoginScreenState extends State<LoginScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final TextEditingController mobileController = TextEditingController();
   String? _selectedCompany;
+
+  @override
+  void initState() {
+    super.initState();
+    context.read<LoginBloc>().add(CompanyListRequested());
+  }
+
   final List<String> _companyList = [
-    "Select Company",
-    "TechZone Pvt Ltd",
-    "MindSoft Solutions",
-    "FutureEdge Technologies",
-    "BlueSky Innovations",
+    "Select Company"
   ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,110 +37,135 @@ class _LoginScreenState extends State<LoginScreen> {
             ScaffoldMessenger.of(
               context,
             ).showSnackBar(const SnackBar(content: Text("Login Successful")));
-            Navigator.pushReplacementNamed(context, '/dashboard');
+            Navigator.pushReplacementNamed(context, '/otpVerification', arguments: state.loginResponse);
           } else if (state.error != null) {
             ScaffoldMessenger.of(
               context,
             ).showSnackBar(SnackBar(content: Text(state.error!)));
           }
+
+          if (state.companyList != null && state.companyList!.isNotEmpty) {
+            for(var list in state.companyList!){
+              _companyList.add(list.companyName ?? "");
+            }
+          }
         },
         builder: (context, state) {
-          return SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 80),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                children: [
-                  const Icon(
-                    Icons.lock_outline,
-                    size: 80,
-                    color: Colors.redAccent,
-                  ),
-                  const SizedBox(height: 30),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
-                      border: Border.all(color: Colors.grey.shade300),
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    child: DropdownButtonFormField<String>(
-                      value: _selectedCompany,
-                      isExpanded: true,
-                      icon: const Icon(Icons.keyboard_arrow_down_rounded),
-                      items: _companyList.map((String value) {
-                        return DropdownMenuItem<String>(
-                          value: value == "Select Company" ? null : value,
-                          child: Text(value),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          _selectedCompany = value;
-                        });
-                      },
-                      validator: (value) {
-                        if (value == null) return "Please select company";
-                        return null;
-                      },
-                    ),
-                  ),
-                  SizedBox(height: 20,),
-                  TextFormField(
-                    controller: mobileController,
-                    keyboardType: TextInputType.phone,
-                    maxLength: 10,
-                    decoration: _inputDecoration("Registered Mobile No."),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return "Please enter your mobile number";
-                      } else if (!RegExp(r'^[0-9]{10}$').hasMatch(value)) {
-                        return "Enter a valid 10-digit mobile number";
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 20),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 50,
-                    child: ElevatedButton(
-                      onPressed: state.isLoading
-                          ? null
-                          : () {
-                              if (_formKey.currentState?.validate() ?? false) {
-                                context.read<LoginBloc>().add(
-                                  LoginRequested(
-                                    loginRequest: LoginRequest(
-                                      mobileNo: mobileController.text.trim(),
-                                      msg: "beforeotp",
-                                      imei: "1234567890",
-                                      fcmToken: "xyz_token",
-                                    ),
-                                  ),
-                                );
-                              }
-                            },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.redAccent,
-                        shape: RoundedRectangleBorder(
+          return Stack(
+            children: [
+              SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 80,
+                ),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      const Icon(
+                        Icons.lock_outline,
+                        size: 80,
+                        color: Colors.redAccent,
+                      ),
+                      const SizedBox(height: 30),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
                           borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: Colors.grey.shade300),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: DropdownButtonFormField<String>(
+                          value: _selectedCompany,
+                          isExpanded: true,
+                          icon: const Icon(Icons.keyboard_arrow_down_rounded),
+                          items: _companyList.map((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value == "Select Company" ? null : value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                          onChanged: (value) {
+                            setState(() {
+                              _selectedCompany = value;
+                            });
+                          },
+                          validator: (value) {
+                            if (value == null) return "Please select company";
+                            return null;
+                          },
                         ),
                       ),
-                      child: state.isLoading
-                          ? const CircularProgressIndicator(color: Colors.white)
-                          : const Text(
-                              "LOGIN",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                              ),
+                      SizedBox(height: 20),
+                      TextFormField(
+                        controller: mobileController,
+                        keyboardType: TextInputType.phone,
+                        maxLength: 10,
+                        decoration: _inputDecoration("Registered Mobile No."),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "Please enter your mobile number";
+                          } else if (!RegExp(r'^[0-9]{10}$').hasMatch(value)) {
+                            return "Enter a valid 10-digit mobile number";
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 20),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 50,
+                        child: ElevatedButton(
+                          onPressed: state.isLoading
+                              ? null
+                              : () {
+                                  if (_formKey.currentState?.validate() ??
+                                      false) {
+                                    context.read<LoginBloc>().add(
+                                      LoginRequested(
+                                        loginRequest: LoginRequest(
+                                          mobileNo: mobileController.text
+                                              .trim(),
+                                          msg: "beforeotp",
+                                          imei: "1234567890",
+                                          fcmToken: "xyz_token",
+                                          companyName: _selectedCompany ?? ""
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.redAccent,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
                             ),
-                    ),
+                          ),
+                          child: state.isLoading
+                              ? const CircularProgressIndicator(
+                                  color: Colors.white,
+                                )
+                              : const Text(
+                                  "LOGIN",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                        ),
+                      ),
+                    ],
                   ),
-                ],
+                ),
               ),
-            ),
+              Visibility(
+                visible: state.isCompanyListFetch,
+                child: Container(
+                  color: Colors.black.withOpacity(0.5),
+                  child: const Center(child: CircularProgressIndicator()),
+                ),
+              ),
+            ],
           );
         },
       ),

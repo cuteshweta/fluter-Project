@@ -4,7 +4,7 @@ part 'company_list.g.dart';
 
 @JsonSerializable(fieldRename: FieldRename.snake)
 class CompanyList {
-  String? id;
+  int? id;
   @JsonKey(name: "companyname")
   String? companyName;
 

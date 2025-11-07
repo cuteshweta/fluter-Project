@@ -4,6 +4,9 @@ import 'package:haritashr/src/features/domain/entities/login/request/login_reque
 import 'package:haritashr/src/features/domain/entities/login/response/user.dart';
 import 'package:haritashr/src/features/domain/usecases/login/login_usecase.dart';
 
+import '../../../domain/entities/login/response/company_list.dart';
+import '../../../domain/entities/login/response/login_response.dart';
+
 part 'login_event.dart';
 
 part 'login_state.dart';
@@ -13,6 +16,7 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
 
   LoginBloc(this.useCases) : super(const LoginState()) {
     on<LoginRequested>(_onLoginRequested);
+    on<CompanyListRequested>(_onCompanyListRequest);
   }
 
   Future<void> _onLoginRequested(
@@ -37,6 +41,20 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
           emit(state.copyWith(isLoading: false, error: failure.errorMessage)),
       (response) =>
           emit(state.copyWith(isLoading: false, loginResponse: response)),
+    );
+  }
+
+  Future<void> _onCompanyListRequest(
+    CompanyListRequested event,
+    Emitter<LoginState> emit,
+  ) async {
+    emit(state.copyWith(isCompanyListFetch: true, error: null));
+    final result = await useCases.getCompanyList();
+
+    result.fold(
+      (ifLeft) =>
+          emit(state.copyWith(isCompanyListFetch: false, error: ifLeft.errorMessage)),
+      (ifRight) => emit(state.copyWith(isCompanyListFetch: false, list: ifRight)),
     );
   }
 }

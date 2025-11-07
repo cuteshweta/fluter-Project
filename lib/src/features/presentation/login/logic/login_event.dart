@@ -14,3 +14,10 @@ class LoginRequested extends LoginEvent {
   @override
   List<Object?> get props => [loginRequest];
 }
+
+class CompanyListRequested extends LoginEvent{
+
+  @override
+  List<Object?> get props => [];
+
+}
