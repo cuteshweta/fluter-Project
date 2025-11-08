@@ -49,4 +49,16 @@ class LoginRequestImpl extends RepositoryLoginAbstract {
       return Left(Failure(UNEXPECTED_ERROR));
     }
   }
+
+  @override
+  Future<Either<Failure, UserResponse>> companyLocation({
+    required CompanyRequest userResponse,
+  }) async {
+    try {
+      var result = loginApiImpl.requestOtp(userResponse);
+      return result;
+    } catch (e) {
+      return Left(Failure(UNEXPECTED_ERROR));
+    }
+  }
 }

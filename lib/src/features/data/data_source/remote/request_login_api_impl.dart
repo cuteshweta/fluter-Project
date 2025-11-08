@@ -8,6 +8,8 @@ import 'package:haritashr/src/core/utils/contants/error_constants.dart';
 import 'package:haritashr/src/core/utils/contants/network_constant.dart' as network;
 import 'package:haritashr/src/features/data/data_source/remote/abstract_request_login_api.dart';
 import 'package:haritashr/src/features/domain/entities/login/request/login_request.dart';
+import 'package:haritashr/src/features/domain/entities/login/request/company_location_request.dart';
+import 'package:haritashr/src/features/domain/entities/login/response/company_location_response.dart';
 import 'package:haritashr/src/features/domain/entities/login/request/verify_otp_request.dart';
 import 'package:haritashr/src/features/domain/entities/login/response/company_list.dart';
 import 'package:haritashr/src/features/domain/entities/login/response/company_response.dart';
@@ -111,4 +113,34 @@ class LoginApiImpl extends AbstractRequestLoginApi {
       return Left(Failure("Unexpected error: ${e.toString()}"));
     }
   }
+
+  @override
+  Future<Either<Failure, CompanyLocationResponse>> companyLocation(CompanyLocationRequest request) async {
+    try {
+      final result = await dio.appApi.post(
+        network.companyLocation,
+        options: Options(contentType: Headers.formUrlEncodedContentType),
+        data: request.toJson(),
+
+      );
+      var data = result.data;
+      if (data is String) {
+        data = jsonDecode(data);
+      }
+      if (data == null) {
+        return Left(Failure("Unexcepted error"));
+      }
+      final responseData = CompanyLocationResponse.fromJson(data);
+      if (responseData.success == "1") {
+        return Right(responseData);
+      } else {
+        return Left(Failure(responseData.msg ?? "Location not found"));
+      }
+    } on DioException catch (e) {
+      return Left(Failure("Unexpected error: ${e.toString()}"));
+    } catch (e) {
+      return Left(Failure("Unexpected error: ${e.toString()}"));
+    }
+  }
+
 }
