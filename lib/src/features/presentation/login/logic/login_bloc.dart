@@ -1,7 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:haritashr/src/features/domain/entities/login/request/login_request.dart';
-import 'package:haritashr/src/features/domain/entities/login/response/user.dart';
 import 'package:haritashr/src/features/domain/usecases/login/login_usecase.dart';
 
 import '../../../domain/entities/login/response/company_list.dart';

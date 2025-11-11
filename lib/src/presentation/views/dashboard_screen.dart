@@ -50,14 +50,14 @@ class DashboardScreen extends StatelessWidget {
                     icon: Icons.event_note,
                     label: 'Leave Request',
                     onTabFun: () {
-                      Navigator.pushNamed(context, '/leaveRequest');
+                      Navigator.pushNamed(context, '/leaveRequest', arguments: "leave");
                     },
                   ),
                   _buildDashboardTile(
                     icon: Icons.description_outlined,
                     label: 'OD Request',
                     onTabFun: () {
-                      Navigator.pushNamed(context, '/leaveRequest');
+                      Navigator.pushNamed(context, '/leaveRequest', arguments: "od");
                     },
                   ),
                   _buildDashboardTile(

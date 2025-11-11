@@ -6,12 +6,12 @@ import 'package:haritashr/src/core/utils/contants/error_constants.dart';
 import 'package:haritashr/src/features/domain/entities/login/request/login_request.dart';
 import 'package:haritashr/src/features/domain/entities/login/request/verify_otp_request.dart';
 import 'package:haritashr/src/features/domain/entities/login/response/company_list.dart';
+import 'package:haritashr/src/features/domain/entities/login/response/verify_otp_response.dart';
 
-import 'package:haritashr/src/features/domain/entities/login/response/user.dart';
 
-import '../../../domain/entities/login/response/login_response.dart';
-import '../../../domain/repository/login/request_otp_repo.dart';
-import '../remote/request_login_api_impl.dart';
+import '../../../../domain/entities/login/response/login_response.dart';
+import '../../../../domain/repository/login/request_otp_repo.dart';
+import '../../remote/login/request_login_api_impl.dart';
 
 class LoginRequestImpl extends RepositoryLoginAbstract {
   final LoginApiImpl loginApiImpl;
@@ -40,7 +40,7 @@ class LoginRequestImpl extends RepositoryLoginAbstract {
   }
 
   @override
-  Future<Either<Failure, User>> verifyOtpRequest(
+  Future<Either<Failure, VerifyOtpResponseModel>> verifyOtpRequest(
     VerifyOtpRequestModel request,
   ) async {
     try {

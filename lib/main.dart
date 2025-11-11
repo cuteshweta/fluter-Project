@@ -1,19 +1,31 @@
+import 'package:device_preview/device_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:haritashr/src/core/utils/shared_preference/app_shared_preference.dart';
+import 'package:haritashr/src/features/presentation/attendance/logic/attendance_bloc.dart';
+import 'package:haritashr/src/features/presentation/leave/logic/leave_bloc.dart';
 import 'package:haritashr/src/features/presentation/login/logic/login_bloc.dart';
+import 'package:haritashr/src/features/presentation/login/logic/verify_otp/verify_otp_bloc.dart';
 import 'package:haritashr/src/features/presentation/login/view/login_screen.dart';
 import 'package:haritashr/src/features/presentation/login/view/otp_verification_screen.dart';
 import 'package:haritashr/src/presentation/views/dashboard_screen.dart';
-import 'package:haritashr/src/presentation/views/home_screen.dart';
-import 'package:haritashr/src/presentation/views/leave_request_screen.dart';
+import 'package:haritashr/src/features/presentation/attendance/view/home_screen.dart';
+import 'package:haritashr/src/features/presentation/leave/view/leave_request_screen.dart';
 import 'package:haritashr/src/shared/app_injection.dart';
 
-void main() async{
+void main() async {
   // init injection
-
+  WidgetsFlutterBinding.ensureInitialized();
   await initInjections();
-  runApp(const MyApp());
+  runApp(
+    DevicePreview(
+      builder: (context) {
+        return const MyApp();
+      },
+      enabled: false,
+    ),
+  );
 
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
 }
@@ -47,15 +59,23 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (_) => BlocProvider(
           create: (_) => LoginBloc(sl()),
-          child: const LoginScreen(),
+          child: AppSharedPreference.instance?.getIsUserLogin() ?? false
+              ? const DashboardScreen()
+              : LoginScreen(),
         ),
-        '/otpVerification':(_) => const OtpVerificationScreen(),
-        '/dashboard': (_) =>
-            const DashboardScreen(),
-        '/leaveRequest': (_) =>
-            const LeaveRequestScreen(),
-        '/homeScreen': (_) =>
-            const HomeScreen()
+        '/otpVerification': (_) => BlocProvider(
+          create: (_) => VerifyOtpBloc((sl())),
+          child: const OtpVerificationScreen(),
+        ),
+        '/homeScreen': (_) => BlocProvider(
+          create: (_) => AttendanceBloc(sl()),
+          child: HomeScreen(),
+        ),
+        '/leaveRequest': (_) => BlocProvider(
+          create: (_) => LeaveBloc(sl()),
+          child: LeaveRequestScreen(),
+        ),
+        '/dashboard': (_) => const DashboardScreen(),
       },
     );
   }

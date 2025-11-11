@@ -11,8 +11,13 @@ VerifyOtpRequestModel _$VerifyOtpRequestModelFromJson(
 ) => VerifyOtpRequestModel(
   userId: json['user_id'] as String,
   otp: json['otp'] as String,
+  loginToken: json['Token'] as String,
 );
 
 Map<String, dynamic> _$VerifyOtpRequestModelToJson(
   VerifyOtpRequestModel instance,
-) => <String, dynamic>{'user_id': instance.userId, 'otp': instance.otp};
+) => <String, dynamic>{
+  'user_id': instance.userId,
+  'otp': instance.otp,
+  'Token': instance.loginToken,
+};
