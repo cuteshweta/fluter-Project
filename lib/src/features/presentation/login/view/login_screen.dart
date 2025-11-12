@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:haritashr/src/core/utils/permissions_mamager.dart';
+import 'package:haritashr/src/core/utils/shared_preference/app_shared_preference.dart';
 import 'package:haritashr/src/features/domain/entities/login/request/login_request.dart';
 
 import '../logic/login_bloc.dart';
@@ -22,22 +24,31 @@ class _LoginScreenState extends State<LoginScreen> {
     context.read<LoginBloc>().add(CompanyListRequested());
   }
 
-  final List<String> _companyList = [
-    "Select Company"
-  ];
+  final List<String> _companyList = ["Select Company"];
 
   @override
   Widget build(BuildContext context) {
+    PermissionManager().requestPermission();
     return Scaffold(
       backgroundColor: Colors.grey[50],
       body: BlocConsumer<LoginBloc, LoginState>(
         listener: (context, state) {
           if (state.loginResponse != null &&
               state.loginResponse?.success == "1") {
-            ScaffoldMessenger.of(
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(content: Text("Otp Send Successful")),
+            );
+
+            print(AppSharedPreference.instance);
+            AppSharedPreference.instance?.setCompanyName(
+              _selectedCompany ?? "",
+            );
+
+            Navigator.pushReplacementNamed(
               context,
-            ).showSnackBar(const SnackBar(content: Text("Login Successful")));
-            Navigator.pushReplacementNamed(context, '/otpVerification', arguments: state.loginResponse);
+              '/otpVerification',
+              arguments: state.loginResponse,
+            );
           } else if (state.error != null) {
             ScaffoldMessenger.of(
               context,
@@ -45,7 +56,7 @@ class _LoginScreenState extends State<LoginScreen> {
           }
 
           if (state.companyList != null && state.companyList!.isNotEmpty) {
-            for(var list in state.companyList!){
+            for (var list in state.companyList!) {
               _companyList.add(list.companyName ?? "");
             }
           }
@@ -126,10 +137,13 @@ class _LoginScreenState extends State<LoginScreen> {
                                         loginRequest: LoginRequest(
                                           mobileNo: mobileController.text
                                               .trim(),
-                                          msg: "beforeotp",
-                                          imei: "1234567890",
+                                          msg: "LoginActivity",
+                                          imei:
+                                              AppSharedPreference.instance
+                                                  ?.getDeviceId() ??
+                                              "",
                                           fcmToken: "xyz_token",
-                                          companyName: _selectedCompany ?? ""
+                                          companyName: _selectedCompany ?? "",
                                         ),
                                       ),
                                     );

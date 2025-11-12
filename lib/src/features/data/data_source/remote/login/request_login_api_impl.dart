@@ -5,18 +5,17 @@ import 'package:dio/dio.dart';
 import 'package:haritashr/src/core/network/Failure.dart';
 import 'package:haritashr/src/core/network/dio_network.dart';
 import 'package:haritashr/src/core/utils/contants/error_constants.dart';
-import 'package:haritashr/src/core/utils/contants/network_constant.dart' as network;
-import 'package:haritashr/src/features/data/data_source/remote/abstract_request_login_api.dart';
+import 'package:haritashr/src/core/utils/contants/network_constant.dart'
+as network;
+import 'package:haritashr/src/core/utils/shared_preference/app_shared_preference.dart';
+import 'package:haritashr/src/features/data/data_source/remote/login/abstract_request_login_api.dart';
 import 'package:haritashr/src/features/domain/entities/login/request/login_request.dart';
-import 'package:haritashr/src/features/domain/entities/login/request/company_location_request.dart';
-import 'package:haritashr/src/features/domain/entities/login/response/company_location_response.dart';
 import 'package:haritashr/src/features/domain/entities/login/request/verify_otp_request.dart';
 import 'package:haritashr/src/features/domain/entities/login/response/company_list.dart';
 import 'package:haritashr/src/features/domain/entities/login/response/company_response.dart';
-import 'package:haritashr/src/features/domain/entities/login/response/user.dart';
 
-import '../../../domain/entities/login/response/login_response.dart';
-
+import '../../../../domain/entities/login/response/login_response.dart';
+import '../../../../domain/entities/login/response/verify_otp_response.dart';
 
 class LoginApiImpl extends AbstractRequestLoginApi {
   final DioNetwork dio;
@@ -24,14 +23,16 @@ class LoginApiImpl extends AbstractRequestLoginApi {
   LoginApiImpl(this.dio);
 
   @override
-  Future<Either<Failure, LoginResponse>> requestOtp(LoginRequest request) async {
+  Future<Either<Failure, LoginResponse>> requestOtp(
+      LoginRequest request,
+      ) async {
     try {
       final result = await dio.appApi.post(
         network.loginAPi,
         options: Options(contentType: Headers.formUrlEncodedContentType),
         data: request.toJson(),
-
       );
+      print(result.data);
       var data = result.data;
       if (data is String) {
         data = jsonDecode(data);
@@ -39,6 +40,7 @@ class LoginApiImpl extends AbstractRequestLoginApi {
       if (data == null) {
         return Left(Failure("Unexcepted error"));
       }
+      print(data);
       final responseData = LoginResponse.fromJson(data);
       if (responseData.success == "1") {
         return Right(responseData);
@@ -81,60 +83,38 @@ class LoginApiImpl extends AbstractRequestLoginApi {
   }
 
   @override
-  Future<Either<Failure, User>> verifyOtp(VerifyOtpRequestModel request) async{
-    try{
-
+  Future<Either<Failure, VerifyOtpResponseModel>> verifyOtp(VerifyOtpRequestModel request) async {
+    try {
+      Map<String, String> headersMap = {};
+      headersMap["Token"] = request.loginToken;
       final result = await dio.appApi.post(
         network.verifyOtp,
-        options: Options(contentType:  Headers.formUrlEncodedContentType),
-        data: request.toJson()
+        options: Options(
+          contentType: Headers.formUrlEncodedContentType,
+          headers: headersMap,
+        ),
+        data: {
+          'userId': request.userId,
+          'otp': request.otp,
+          'companyname': AppSharedPreference.instance?.getCompanyName() ?? "",
+        },
       );
 
       var data = result.data;
 
-      if(data is String){
-        data = jsonDecode(data);
-      }
-      if(data == null){
-        return Left(Failure(UNEXPECTED_ERROR));
-      }
-
-      final responseData = User.fromJson(data);
-
-      if(responseData.success == "1"){
-        return Right(responseData);
-      }else{
-        return Left(Failure("${responseData.msg}"));
-      }
-
-    }on DioException catch(e){
-      return Left(Failure("Unexpected error: ${e.toString()}"));
-    } catch (e) {
-      return Left(Failure("Unexpected error: ${e.toString()}"));
-    }
-  }
-
-  @override
-  Future<Either<Failure, CompanyLocationResponse>> companyLocation(CompanyLocationRequest request) async {
-    try {
-      final result = await dio.appApi.post(
-        network.companyLocation,
-        options: Options(contentType: Headers.formUrlEncodedContentType),
-        data: request.toJson(),
-
-      );
-      var data = result.data;
       if (data is String) {
         data = jsonDecode(data);
       }
       if (data == null) {
-        return Left(Failure("Unexcepted error"));
+        return Left(Failure(UNEXPECTED_ERROR));
       }
-      final responseData = CompanyLocationResponse.fromJson(data);
+
+      final responseData = VerifyOtpResponseModel.fromJson(data);
+
       if (responseData.success == "1") {
         return Right(responseData);
       } else {
-        return Left(Failure(responseData.msg ?? "Location not found"));
+        return Left(Failure("${responseData.msg}"));
       }
     } on DioException catch (e) {
       return Left(Failure("Unexpected error: ${e.toString()}"));
@@ -142,5 +122,4 @@ class LoginApiImpl extends AbstractRequestLoginApi {
       return Left(Failure("Unexpected error: ${e.toString()}"));
     }
   }
-
 }
