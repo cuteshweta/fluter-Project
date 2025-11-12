@@ -47,8 +47,10 @@ class _HomeScreenState extends State<HomeScreen> {
             state.responseModel.result?.long ?? "0.0",
           );
         } else if (state is MarkAttendanceSuccess) {
+
           CommonSnackBar(msg: state.responseModel.msg, context: context).call();
         } else if (state is CurrentLocationState) {
+
           isWithInDistance = true;
         }
       },
@@ -114,7 +116,6 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
 
                     const SizedBox(height: 50),
-
                     // Punch button
                     Container(
                       width: 160,
@@ -136,7 +137,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       child: Center(
                         child: GestureDetector(
-                          onTap: () {
+                          onTap: () async {
                             if (isWithInDistance) {
                               context.read<AttendanceBloc>().add(
                                 MarkAttendanceEvent(
