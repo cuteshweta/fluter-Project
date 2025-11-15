@@ -13,6 +13,7 @@ LeaveRequestModel _$LeaveRequestModelFromJson(Map<String, dynamic> json) =>
       json['companyname'] as String?,
       json['fdate'] as String?,
       json['tdate'] as String?,
+      json['remarks'] as String?,
     );
 
 Map<String, dynamic> _$LeaveRequestModelToJson(LeaveRequestModel instance) =>
@@ -22,4 +23,5 @@ Map<String, dynamic> _$LeaveRequestModelToJson(LeaveRequestModel instance) =>
       'companyname': instance.companyname,
       'fdate': instance.fdate,
       'tdate': instance.tdate,
+      'remarks': instance.remarks,
     };

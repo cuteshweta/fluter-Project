@@ -2,9 +2,12 @@ import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:haritashr/src/features/domain/entities/attendance/request/mark_attendance_request.dart';
+import 'package:haritashr/src/features/domain/entities/attendance/response/attendance_history.dart';
 import 'package:haritashr/src/features/domain/entities/attendance/response/fetch_company_location_response.dart';
 import 'package:haritashr/src/features/domain/entities/attendance/response/mark_attendance_response.dart';
 import 'package:haritashr/src/features/domain/usecases/attendance/attendance_master_usecases.dart';
+
+import '../../../domain/entities/attendance/request/attendance_report_request.dart';
 
 part 'attendance_event.dart';
 
@@ -17,6 +20,7 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
     on<FetchCompanyLocationEvent>(_onFetchCompanyLocation);
     on<MarkAttendanceEvent>(_onMarkAttendance);
     on<CurrentLocationEvent>(_onCurrentLocation);
+    on<AttendanceReportEvent>(_onAttendanceReport);
   }
 
   Future<void> _onFetchCompanyLocation(
@@ -73,5 +77,23 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
     } else {
       emit(CurrentLocationState(difference: distance));
     }
+  }
+
+  Future<void> _onAttendanceReport(
+      AttendanceReportEvent event,
+      Emitter<AttendanceState> emit,
+      ) async {
+    emit(AttendanceReportLoading());
+
+    final result = await userCase.attendanceReport(
+      request: event.request,
+    );
+
+    result.fold(
+          (failure) =>
+          emit(AttendanceReportError(msg: failure.errorMessage)),
+          (success) =>
+          emit(AttendanceReportSuccess(responseModel: success)),
+    );
   }
 }

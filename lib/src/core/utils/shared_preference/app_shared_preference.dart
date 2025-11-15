@@ -7,6 +7,7 @@ class AppSharedPreference {
   final String _ACCESS_TOEKN = "accessToken";
   final String _USER_ID = "userId";
   final String _DEVICE_ID = "uniqueDeviceId";
+  final String _USER_NAME="name";
 
   AppSharedPreference._internal(this.sharedPreferences);
 
@@ -29,6 +30,14 @@ class AppSharedPreference {
 
   String getCompanyName() {
     return sharedPreferences.getString(_COMPANY_NAME) ?? "";
+  }
+
+  Future<void> setUserName(String name) async {
+    await sharedPreferences.setString(_USER_NAME, name);
+  }
+
+  String getUserName() {
+    return sharedPreferences.getString(_USER_NAME) ?? "";
   }
 
   Future<void> setIsUserLogin(bool isLogin) async {

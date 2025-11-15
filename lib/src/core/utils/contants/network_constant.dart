@@ -6,3 +6,4 @@ const String verifyOtp = "otpVerification.php";
 const String fetchCompanyLocation = "companylocation.php";
 const String attendanceMaster = "attendanceMaster.php";
 const String leaveODMaster = "leaveODMaster.php";
+const String attendanceHistory="attendanceReport.php";

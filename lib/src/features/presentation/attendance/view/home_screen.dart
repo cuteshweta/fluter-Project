@@ -75,9 +75,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         const SizedBox(width: 12),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
-                          children: const [
+                          children: [
                             Text(
-                              'HEY JHONE DOE',
+                            AppSharedPreference.instance?.getUserName() ?? "",
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
@@ -256,7 +256,7 @@ class _HomeScreenState extends State<HomeScreen> {
             IconButton(
               icon: Icon(Icons.calendar_month, color: Colors.white),
               onPressed: () {
-                Navigator.pushReplacementNamed(context, '/dashboard');
+                Navigator.pushReplacementNamed(context, '/history');
               },
             ),
           ],

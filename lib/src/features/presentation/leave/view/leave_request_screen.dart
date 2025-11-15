@@ -243,6 +243,7 @@ class _LeaveRequestScreenState extends State<LeaveRequestScreen> {
                                   toDate != null
                                       ? "${toDate!.year}-${toDate!.month}-${toDate!.day}"
                                       : "",
+                                    reasonController.text,
                                 ),
                               ),
                             );

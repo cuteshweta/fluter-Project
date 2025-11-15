@@ -7,6 +7,9 @@ import 'package:haritashr/src/features/domain/entities/attendance/response/fetch
 import 'package:haritashr/src/features/domain/entities/attendance/response/mark_attendance_response.dart';
 import 'package:haritashr/src/features/domain/repository/attendance/attendance_abstract_repo.dart';
 
+import '../../../../domain/entities/attendance/request/attendance_report_request.dart';
+import '../../../../domain/entities/attendance/response/attendance_history.dart';
+
 class AttendanceRepoImpl extends AttendanceRepoAbstract {
   final AttendanceApiImpl attendanceApiImpl;
 
@@ -33,5 +36,23 @@ class AttendanceRepoImpl extends AttendanceRepoAbstract {
     } catch (e) {
       return Left(Failure("$UNEXPECTED_ERROR:${e.toString()}"));
     }
+  }
+
+  // @override
+  // Future<Either<Failure, AttendanceHistory>> attendanceReport({
+  // // required String? userId, required String? fdate,required String? tdate
+  // required AttendanceHistory request,
+  // }) async {
+  //   try {
+  //     return await  attendanceApiImpl.attendanceReport(request:request);
+  //   } catch (e) {
+  //     return Left(Failure("$UNEXPECTED_ERROR:${e.toString()}"));
+  //   }
+  // }
+  @override
+  Future<Either<Failure, List<AttendanceHistory>>> attendanceReport({
+    required AttendanceReportRequest request,
+  }) {
+    return attendanceApiImpl.attendanceReport(request: request);
   }
 }

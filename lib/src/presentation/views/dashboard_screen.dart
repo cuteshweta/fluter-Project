@@ -175,7 +175,7 @@ class DashboardScreen extends StatelessWidget {
               IconButton(
                 icon: Icon(Icons.calendar_month, color: Colors.white),
                 onPressed: () {
-                  Navigator.pushReplacementNamed(context, '/dashboard');
+                  Navigator.pushReplacementNamed(context, '/history');
                 },
               ),
             ],

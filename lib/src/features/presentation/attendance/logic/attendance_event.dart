@@ -37,3 +37,13 @@ class CurrentLocationEvent extends AttendanceEvent {
   // TODO: implement props
   List<Object?> get props => [currentLat, currentLong];
 }
+
+class AttendanceReportEvent extends AttendanceEvent {
+  final AttendanceReportRequest request;
+
+  AttendanceReportEvent({required this.request});
+
+  @override
+  // TODO: implement props
+  List<Object?> get props => throw UnimplementedError();
+}

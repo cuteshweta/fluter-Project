@@ -37,6 +37,7 @@ dependencies:
 
   # share preference liberery
   shared_preferences: ^2.5.3
+  table_calendar: ^3.0.9
 
   #handle success and error message
   dartz: ^0.10.1

@@ -9,6 +9,7 @@ class LeaveRequestModel {
   String? companyname;
   String? fdate;
   String? tdate;
+  String? remarks;
 
   LeaveRequestModel(
     this.userId,
@@ -16,6 +17,7 @@ class LeaveRequestModel {
     this.companyname,
     this.fdate,
     this.tdate,
+      this.remarks,
   );
 
   factory LeaveRequestModel.fromJson(json) => _$LeaveRequestModelFromJson(json);

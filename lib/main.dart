@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:haritashr/src/core/utils/shared_preference/app_shared_preference.dart';
 import 'package:haritashr/src/features/presentation/attendance/logic/attendance_bloc.dart';
+import 'package:haritashr/src/features/presentation/attendance/view/attendance_history_screen.dart';
 import 'package:haritashr/src/features/presentation/leave/logic/leave_bloc.dart';
 import 'package:haritashr/src/features/presentation/login/logic/login_bloc.dart';
 import 'package:haritashr/src/features/presentation/login/logic/verify_otp/verify_otp_bloc.dart';
@@ -71,6 +72,10 @@ class MyApp extends StatelessWidget {
         '/homeScreen': (_) => BlocProvider(
           create: (_) => AttendanceBloc(sl()),
           child: HomeScreen(),
+        ),
+        '/history': (_) => BlocProvider(
+          create: (_) => AttendanceBloc(sl()),
+          child: AttendanceHistoryScreen(),
         ),
         '/leaveRequest': (_) => BlocProvider(
           create: (_) => LeaveBloc(sl()),
