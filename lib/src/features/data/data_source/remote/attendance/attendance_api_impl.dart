@@ -127,7 +127,7 @@ class AttendanceApiImpl extends AbstractAttendanceApi {
   }) async {
     try {
       Map<String, dynamic> mapHeaders = {};
-      mapHeaders['TOKEN'] = AppSharedPreference.instance?.getAccessToken();
+      mapHeaders['TOKEN'] = '33d0059179a2d167779e088825542867';//AppSharedPreference.instance?.getAccessToken();
 
       final response = await dio.appApi.post(
         network.attendanceHistory,
@@ -137,14 +137,15 @@ class AttendanceApiImpl extends AbstractAttendanceApi {
         ),
         data: request.toJson(),
       );
-      print(request.toJson());
-
       var data = response.data;
 
       if (data is String) {
-        data = jsonDecode(data);
+        try {
+          data = jsonDecode(data);
+        } catch (e) {
+          return Left(Failure("Invalid response from server"));
+        }
       }
-
       final resultData = AttendanceHistoryResponse.fromJson(data);
 
       if (resultData.status == 1) {
