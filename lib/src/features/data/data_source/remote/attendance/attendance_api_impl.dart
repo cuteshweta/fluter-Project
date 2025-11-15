@@ -29,6 +29,7 @@ class AttendanceApiImpl extends AbstractAttendanceApi {
       );
 
       var data = result.data;
+
       if (data is String) {
         data = jsonDecode(data);
       }
@@ -62,7 +63,7 @@ class AttendanceApiImpl extends AbstractAttendanceApi {
       );
 
       var data = result.data;
-      if (result is String) {
+      if (data is String) {
         data = jsonDecode(data);
       }
 

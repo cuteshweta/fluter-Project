@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:core';
 
 import 'package:dartz/dartz.dart';
 import 'package:dio/dio.dart';
@@ -36,7 +37,8 @@ class LeaveApiImpl extends AbstractLeaveApi {
       );
 
       var data = result.data;
-      if (result is String) {
+
+      if (data is String) {
         data = jsonDecode(data);
       }
 
@@ -48,6 +50,7 @@ class LeaveApiImpl extends AbstractLeaveApi {
         return Left(Failure("$UNEXPECTED_ERROR:${resultData.msg}"));
       }
     } catch (e) {
+
       return Left(Failure("$UNEXPECTED_ERROR:${e.toString()}"));
     }
     throw UnimplementedError();
