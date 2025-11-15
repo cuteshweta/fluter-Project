@@ -52,7 +52,7 @@ class AttendanceApiImpl extends AbstractAttendanceApi {
     try {
       Map<String, dynamic> mapHeaders = {};
       mapHeaders['TOKEN'] = AppSharedPreference.instance?.getAccessToken();
-      final result = await dio.appApi.post(
+      final result = await dio.appApi.post( 
         network.attendanceMaster,
         options: Options(
           contentType: Headers.formUrlEncodedContentType,
