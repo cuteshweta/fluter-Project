@@ -13,4 +13,6 @@ abstract class AbstractRequestLoginApi {
   Future<Either<Failure, List<CompanyList>>> getCompanyList();
 
   Future<Either<Failure, VerifyOtpResponseModel>> verifyOtp(VerifyOtpRequestModel request);
+
+  Future<bool> logout(String token);
 }

@@ -8,6 +8,7 @@ import 'package:haritashr/src/shared/data/data_source/app_shared_preference.dart
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../core/utils/shared_preference/app_shared_preference.dart';
+import '../features/presentation/login/logout_injections.dart';
 
 final sl = GetIt.instance;
 
@@ -19,6 +20,7 @@ Future<void> initInjections() async {
   await initLoginInjections();
   await initAttendanceInjections();
   await initLeaveInjections();
+  await initLogoutInjections();
 }
 
 initAppInjection() {

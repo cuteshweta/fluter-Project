@@ -21,3 +21,9 @@ class CompanyListRequested extends LoginEvent{
   List<Object?> get props => [];
 
 }
+
+class LogoutRequested extends LoginEvent {
+  @override
+  // TODO: implement props
+  List<Object?> get props => throw UnimplementedError();
+}

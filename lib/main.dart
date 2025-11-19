@@ -60,10 +60,14 @@ class MyApp extends StatelessWidget {
       ),
       routes: {
         '/': (_) => BlocProvider(
-          create: (_) => LoginBloc(sl()),
+          create: (_) => LoginBloc(sl(), sl()),
           child: AppSharedPreference.instance?.getIsUserLogin() ?? false
               ? const DashboardScreen()
               : LoginScreen(),
+        ),
+        '/logout': (_) => BlocProvider(
+          create: (_) => LoginBloc(sl(), sl()),
+          child: const LoginScreen(),
         ),
         '/otpVerification': (_) => BlocProvider(
           create: (_) => VerifyOtpBloc((sl())),

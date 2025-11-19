@@ -49,4 +49,8 @@ class LoginRequestImpl extends RepositoryLoginAbstract {
       return Left(Failure(UNEXPECTED_ERROR));
     }
   }
+
+  Future<bool> logout(String token) {
+    return loginApiImpl.logout(token);
+  }
 }

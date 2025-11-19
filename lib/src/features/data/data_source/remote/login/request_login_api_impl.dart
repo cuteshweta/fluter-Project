@@ -122,4 +122,22 @@ class LoginApiImpl extends AbstractRequestLoginApi {
       return Left(Failure("Unexpected error: ${e.toString()}"));
     }
   }
+
+  @override
+  Future<bool> logout(String token) async {
+    Map<String, String> headersMap = {};
+    headersMap["Token"] = AppSharedPreference.instance?.getAccessToken() ?? "";
+    final result = await dio.appApi.post(
+      network.logout,
+      options: Options(
+        contentType: Headers.formUrlEncodedContentType,
+        headers: headersMap,
+      ),
+      data: {
+        'userId': AppSharedPreference.instance?.getUserId() ?? "",
+        'companyname': AppSharedPreference.instance?.getCompanyName() ?? "",
+      },
+    );
+    return result.statusCode == 200;
+  }
 }

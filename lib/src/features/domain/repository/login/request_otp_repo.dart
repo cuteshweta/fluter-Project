@@ -15,4 +15,6 @@ abstract class RepositoryLoginAbstract {
   Future<Either<Failure, List<CompanyList>>> requestCompanyList();
 
   Future<Either<Failure, VerifyOtpResponseModel>> verifyOtpRequest(VerifyOtpRequestModel request);
+
+
 }

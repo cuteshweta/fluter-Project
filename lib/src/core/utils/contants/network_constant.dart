@@ -7,3 +7,4 @@ const String fetchCompanyLocation = "companylocation.php";
 const String attendanceMaster = "attendanceMaster.php";
 const String leaveODMaster = "leaveODMaster.php";
 const String attendanceHistory="attendanceReport.php";
+const String logout="logout.php";

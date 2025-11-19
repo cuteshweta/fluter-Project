@@ -15,20 +15,27 @@ class DashboardScreen extends StatelessWidget {
           'Dashboard',
           style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
         ),
-        actions: const [
+        actions: [
           Padding(
-            padding: EdgeInsets.only(right: 16.0),
+            padding: const EdgeInsets.only(right: 16.0),
             child: Row(
               children: [
-                Icon(Icons.power_settings_new, color: Colors.red),
-                SizedBox(width: 6),
-                Text(
-                  "LOGOUT",
-                  style: TextStyle(
-                    color: Colors.red,
-                    fontWeight: FontWeight.w600,
-                  ),
+                IconButton(
+                  icon:  const Icon(Icons.power_settings_new, color: Colors.red),
+                  onPressed: () {
+                    Navigator.pushReplacementNamed(context, '/logout');
+                  },
                 ),
+
+                const SizedBox(width: 6),
+
+                // const Text(
+                //   "LOGOUT",
+                //   style: TextStyle(
+                //     color: Colors.red,
+                //     fontWeight: FontWeight.w600,
+                //   ),
+                // ),
               ],
             ),
           ),
