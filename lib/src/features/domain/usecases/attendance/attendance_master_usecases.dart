@@ -44,20 +44,6 @@ class AttendanceMasterUserCase {
     );
   }
 
-  // Future<Either<Failure, AttendanceHistory>> attendanceReport({
-  //   required AttendanceHistory request,
-  // }) async {
-  //   final result = await attendanceRepo.attendanceReport(request: request);
-  //   return result.fold(
-  //         (l) {
-  //       return Left(l);
-  //     },
-  //         (r) async {
-  //       return Right(r);
-  //     },
-  //   );
-  // }
-
   Future<Either<Failure, List<AttendanceHistory>>> attendanceReport({
     required AttendanceReportRequest request,
   }) {

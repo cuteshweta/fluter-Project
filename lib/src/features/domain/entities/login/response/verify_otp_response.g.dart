@@ -11,6 +11,7 @@ VerifyOtpResponseModel _$VerifyOtpResponseModelFromJson(
 ) => VerifyOtpResponseModel(
   json['success'] as String?,
   json['authorizedkeys'] as String?,
+  json['name'] as String?,
 )..msg = json['msg'] as String?;
 
 Map<String, dynamic> _$VerifyOtpResponseModelToJson(
@@ -19,4 +20,5 @@ Map<String, dynamic> _$VerifyOtpResponseModelToJson(
   'success': instance.success,
   'authorizedkeys': instance.authorizedkeys,
   'msg': instance.msg,
+  'name': instance.name,
 };

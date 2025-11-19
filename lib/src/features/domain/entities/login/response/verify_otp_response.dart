@@ -7,8 +7,9 @@ class VerifyOtpResponseModel {
   String? success;
   String? authorizedkeys;
   String? msg;
+  String? name;
 
-  VerifyOtpResponseModel(this.success, this.authorizedkeys);
+  VerifyOtpResponseModel(this.success, this.authorizedkeys, this.name);
 
   factory VerifyOtpResponseModel.fromJson(json) =>
       _$VerifyOtpResponseModelFromJson(json);

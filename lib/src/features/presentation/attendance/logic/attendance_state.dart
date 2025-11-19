@@ -53,14 +53,30 @@ class CurrentLocationState extends AttendanceState {
   @override
   List<Object> get props => [difference];
 }
+
 class AttendanceReportLoading extends AttendanceState {}
 
 class AttendanceReportSuccess extends AttendanceState {
   final List<AttendanceHistory> responseModel;
+
   const AttendanceReportSuccess({required this.responseModel});
 }
 
 class AttendanceReportError extends AttendanceState {
   final String msg;
+
   const AttendanceReportError({required this.msg});
+}
+
+class FetchCurrentLocationState extends AttendanceState {
+  final double currentLocationLatitude;
+  final double currentLocationLongitude;
+  final bool isLocationUnder;
+
+
+  const FetchCurrentLocationState({
+    required this.isLocationUnder,
+    required this.currentLocationLatitude,
+    required this.currentLocationLongitude,
+  });
 }

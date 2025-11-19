@@ -75,5 +75,13 @@ class AppSharedPreference {
     await sharedPreferences.setString(_DEVICE_ID, deviceId);
   }
 
+  Future<void> setIsPunchIn(bool isPunchIn) async{
+    await sharedPreferences.setBool("isPunchIn", isPunchIn);
+  }
+
+  bool isPunchIN(){
+    return sharedPreferences.getBool("isPunchIn") ?? false;
+  }
+
 
 }

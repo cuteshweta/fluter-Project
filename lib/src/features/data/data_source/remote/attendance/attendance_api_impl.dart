@@ -57,7 +57,7 @@ class AttendanceApiImpl extends AbstractAttendanceApi {
     try {
       Map<String, dynamic> mapHeaders = {};
       mapHeaders['TOKEN'] = AppSharedPreference.instance?.getAccessToken();
-      final result = await dio.appApi.post( 
+      final result = await dio.appApi.post(
         network.attendanceMaster,
         options: Options(
           contentType: Headers.formUrlEncodedContentType,
@@ -82,52 +82,13 @@ class AttendanceApiImpl extends AbstractAttendanceApi {
       return Left(Failure("$UNEXPECTED_ERROR:${e.toString()}"));
     }
   }
-  // AttendanceReport
-  // Future<Either<Failure, AttendanceHistory>> attendanceReport({
-  //   required AttendanceHistory request,
-  // }) async {
-  //
-  //   try {
-  //     Map<String, dynamic> mapHeaders = {};
-  //     mapHeaders['TOKEN'] = AppSharedPreference.instance?.getAccessToken();
-  //     final result = await dio.appApi.post(
-  //       network.attendanceHistory,
-  //       options: Options(
-  //         contentType: Headers.formUrlEncodedContentType,
-  //         headers: mapHeaders,
-  //       ),
-  //       data: {
-  //         'userId': '1398',
-  //         'companyname': AppSharedPreference.instance?.getCompanyName() ?? "",
-  //         'fdate':'2025-11-05',
-  //         'tdate':'2025-12-25',
-  //       },
-  //     );
-  //
-  //     var data = result.data;
-  //     if (data is String) {
-  //       data = jsonDecode(data);
-  //     }
-  //
-  //     final resultData = AttendanceHistoryResponse.fromJson(data);
-  //
-  //     if (resultData.status == 1) {
-  //       return Right((resultData.result ?? []) as AttendanceHistory);
-  //     } else {
-  //       return Left(Failure(SOMETHING_WRONG));
-  //     }
-  //   } on DioException catch (e) {
-  //     return Left(Failure("Unexpected error: ${e.toString()}"));
-  //   } catch (e) {
-  //     return Left(Failure("Unexpected error: ${e.toString()}"));
-  //   }
-  // }
+
   Future<Either<Failure, List<AttendanceHistory>>> attendanceReport({
     required AttendanceReportRequest request,
   }) async {
     try {
       Map<String, dynamic> mapHeaders = {};
-      mapHeaders['TOKEN'] = '33d0059179a2d167779e088825542867';//AppSharedPreference.instance?.getAccessToken();
+      mapHeaders['TOKEN'] = AppSharedPreference.instance?.getAccessToken();
 
       final response = await dio.appApi.post(
         network.attendanceHistory,
@@ -138,10 +99,13 @@ class AttendanceApiImpl extends AbstractAttendanceApi {
         data: request.toJson(),
       );
       var data = response.data;
-
+      String fixed = response.data.replaceAllMapped(
+        RegExp(r'"date":\s*(\d{4}-\d{2}-\d{2})'),
+            (match) => '"date": "${match.group(1)}"',
+      );
       if (data is String) {
         try {
-          data = jsonDecode(data);
+          data = jsonDecode(fixed);
         } catch (e) {
           return Left(Failure("Invalid response from server"));
         }
@@ -157,5 +121,4 @@ class AttendanceApiImpl extends AbstractAttendanceApi {
       return Left(Failure("Unexpected error: $e"));
     }
   }
-
 }

@@ -45,5 +45,31 @@ class AttendanceReportEvent extends AttendanceEvent {
 
   @override
   // TODO: implement props
-  List<Object?> get props => throw UnimplementedError();
+  List<Object?> get props => [request];
 }
+
+class FetchCurrentLocationEvent extends AttendanceEvent {
+  final double companyLocationLatitude;
+  final double companyLocationLongitude;
+  final String? companyMeter;
+
+  FetchCurrentLocationEvent({required this.companyLocationLatitude, required this.companyLocationLongitude, required this.companyMeter});
+  @override
+  List<Object?> get props => [companyLocationLatitude, companyLocationLongitude, companyMeter];
+}
+
+class UpdateLocationEvent extends AttendanceEvent {
+  final bool isInside;
+  final double lat;
+  final double long;
+
+  UpdateLocationEvent({
+    required this.isInside,
+    required this.lat,
+    required this.long,
+  });
+
+  @override
+  List<Object?> get props => [isInside, lat, long];
+}
+

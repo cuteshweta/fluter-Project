@@ -18,7 +18,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  StreamSubscription<Position>? _positionStream;
   double? companyLat;
   double? companyLong;
   double? currentLat;
@@ -30,8 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
     // TODO: implement initState
     super.initState();
     context.read<AttendanceBloc>().add(FetchCompanyLocationEvent());
-
-    _startLocationUpdates();
+    // _startLocationUpdates();
   }
 
   @override
@@ -46,12 +44,23 @@ class _HomeScreenState extends State<HomeScreen> {
           companyLong = double.tryParse(
             state.responseModel.result?.long ?? "0.0",
           );
+
+          context.read<AttendanceBloc>().add(
+            FetchCurrentLocationEvent(
+              companyLocationLatitude: companyLat ?? 0.0,
+              companyLocationLongitude: companyLong ?? 0.0,
+              companyMeter: state.responseModel.result?.radiusmeter,
+            ),
+          );
         } else if (state is MarkAttendanceSuccess) {
-
+          AppSharedPreference.instance?.setIsUserLogin(
+            !(AppSharedPreference.instance?.isPunchIN() ?? false),
+          );
           CommonSnackBar(msg: state.responseModel.msg, context: context).call();
-        } else if (state is CurrentLocationState) {
-
-          isWithInDistance = true;
+        } else if (state is FetchCurrentLocationState) {
+          isWithInDistance = state.isLocationUnder;
+          currentLat = state.currentLocationLatitude;
+          currentLong = state.currentLocationLongitude;
         }
       },
       builder: (context, state) {
@@ -77,7 +86,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                            AppSharedPreference.instance?.getUserName() ?? "",
+                              AppSharedPreference.instance?.getUserName() ?? "",
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
@@ -85,7 +94,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               ),
                             ),
                             Text(
-                              'MZ001234',
+                              '',
                               style: TextStyle(
                                 fontSize: 13,
                                 color: Colors.blueGrey,
@@ -138,7 +147,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: Center(
                         child: GestureDetector(
                           onTap: () async {
-                            if (isWithInDistance) {
+                            if (state is FetchCurrentLocationState &&
+                                state.isLocationUnder) {
                               context.read<AttendanceBloc>().add(
                                 MarkAttendanceEvent(
                                   request: MarkAttendanceRequest(
@@ -157,16 +167,23 @@ class _HomeScreenState extends State<HomeScreen> {
                           },
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
-                            children: const [
-                              Icon(
+                            children: [
+                              const Icon(
                                 Icons.touch_app,
                                 size: 40,
                                 color: Colors.redAccent,
                               ),
-                              SizedBox(height: 8),
+                              const SizedBox(height: 8),
                               Text(
-                                "PUNCH IN",
-                                style: TextStyle(
+                                state is FetchCurrentLocationState &&
+                                        state.isLocationUnder
+                                    ? ((AppSharedPreference.instance
+                                                  ?.isPunchIN() ??
+                                              false)
+                                          ? "PUNCH OUT"
+                                          : "PUNCH IN")
+                                    : "OutSide",
+                                style: const TextStyle(
                                   color: Colors.redAccent,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -265,53 +282,10 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Future<void> _handlePermission() async {
-    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      await Geolocator.openLocationSettings();
-      return;
-    }
-
-    LocationPermission permission = await Geolocator.checkPermission();
-    if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-    }
-  }
-
-  Future<void> _startLocationUpdates() async {
-    Position position = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high,
-    );
-
-    currentLat = position.latitude;
-    currentLong = position.longitude;
-
-    await _handlePermission();
-
-    _positionStream =
-        Geolocator.getPositionStream(
-          locationSettings: const LocationSettings(
-            accuracy: LocationAccuracy.high,
-            distanceFilter: 10,
-          ),
-        ).listen((Position position) {
-          currentLat = position.latitude;
-          currentLong = position.longitude;
-          context.read<AttendanceBloc>().add(
-            CurrentLocationEvent(
-              currentLat: position.latitude,
-              currentLong: position.longitude,
-              companyLat: companyLat ?? 0.0,
-              companyLong: companyLong ?? 0.0,
-            ),
-          );
-        });
-  }
-
   @override
   void dispose() {
     // TODO: implement dispose
-    _positionStream?.cancel();
+    // _positionStream?.cancel();
     super.dispose();
   }
 }

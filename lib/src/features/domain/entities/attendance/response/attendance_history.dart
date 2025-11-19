@@ -4,7 +4,7 @@ part 'attendance_history.g.dart';
 
 @JsonSerializable(fieldRename: FieldRename.snake)
 class AttendanceHistory {
-  String? date;
+  final String? date;
   // @JsonKey(name: "companyname")
   String? status;
 

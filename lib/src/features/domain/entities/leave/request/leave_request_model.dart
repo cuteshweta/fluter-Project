@@ -1,7 +1,7 @@
-
 import 'package:json_annotation/json_annotation.dart';
 
 part 'leave_request_model.g.dart';
+
 @JsonSerializable(fieldRename: FieldRename.none)
 class LeaveRequestModel {
   String? userId;
@@ -17,7 +17,7 @@ class LeaveRequestModel {
     this.companyname,
     this.fdate,
     this.tdate,
-      this.remarks,
+    this.remarks,
   );
 
   factory LeaveRequestModel.fromJson(json) => _$LeaveRequestModelFromJson(json);

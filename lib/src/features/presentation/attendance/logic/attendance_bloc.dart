@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:ffi';
+
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:geolocator/geolocator.dart';
@@ -15,12 +18,25 @@ part 'attendance_state.dart';
 
 class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
   AttendanceMasterUserCase userCase;
+  StreamSubscription<Position>? _positionStream;
 
   AttendanceBloc(this.userCase) : super(AttendanceState()) {
     on<FetchCompanyLocationEvent>(_onFetchCompanyLocation);
     on<MarkAttendanceEvent>(_onMarkAttendance);
     on<CurrentLocationEvent>(_onCurrentLocation);
     on<AttendanceReportEvent>(_onAttendanceReport);
+    on<FetchCurrentLocationEvent>(_onFetchCurrentLocation);
+    on<UpdateLocationEvent>((event, emit) {
+      emit(FetchCurrentLocationState(
+        isLocationUnder: event.isInside,
+        currentLocationLatitude: event.lat,
+        currentLocationLongitude: event.long,
+      ));
+
+      if (!event.isInside) {
+        // emit(CompanyLocationError(msg: "Location is more than allowed radius"));
+      }
+    });
   }
 
   Future<void> _onFetchCompanyLocation(
@@ -48,7 +64,6 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
         event.request.clong == 0.0 &&
         event.request.slat == 0.0 &&
         event.request.slong == 0.0) {
-
       emit(CompanyLocationError(msg: "Fetching Location Please Wait..."));
       return;
     }
@@ -80,20 +95,76 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
   }
 
   Future<void> _onAttendanceReport(
-      AttendanceReportEvent event,
-      Emitter<AttendanceState> emit,
-      ) async {
+    AttendanceReportEvent event,
+    Emitter<AttendanceState> emit,
+  ) async {
     emit(AttendanceReportLoading());
 
-    final result = await userCase.attendanceReport(
-      request: event.request,
-    );
+    final result = await userCase.attendanceReport(request: event.request);
 
     result.fold(
-          (failure) =>
-          emit(AttendanceReportError(msg: failure.errorMessage)),
-          (success) =>
-          emit(AttendanceReportSuccess(responseModel: success)),
+      (failure) => emit(AttendanceReportError(msg: failure.errorMessage)),
+      (success) => emit(AttendanceReportSuccess(responseModel: success)),
     );
+  }
+
+  Future<void> _onFetchCurrentLocation(
+    FetchCurrentLocationEvent event,
+    Emitter<AttendanceState> emit,
+  ) async {
+    await _handlePermission();
+
+    _positionStream =
+        Geolocator.getPositionStream(
+          locationSettings: const LocationSettings(
+            accuracy: LocationAccuracy.high,
+            distanceFilter: 0,
+          ),
+        ).listen((Position position) {
+          double distance = Geolocator.distanceBetween(
+            position.latitude,
+            position.longitude,
+            event.companyLocationLatitude,
+            event.companyLocationLongitude,
+          );
+          // emit(CompanyLocationFetching(isLoading: false));
+          print("metter${event.companyMeter}");
+          // if (distance >= (double.parse(event.companyMeter ?? "0.0"))) {
+          //   emit(CompanyLocationError(msg: "Location is more than ${event.companyMeter}"));
+          // }
+          add(UpdateLocationEvent(
+            isInside: distance < double.parse(event.companyMeter ?? "0.0"),
+            lat: position.latitude,
+            long: position.longitude,
+          ));
+          /*context.read<AttendanceBloc>().add(
+
+            CurrentLocationEvent(
+              currentLat: position.latitude,
+              currentLong: position.longitude,
+              companyLat: companyLat ?? 0.0,
+              companyLong: companyLong ?? 0.0,
+            ),
+          );*/
+        });
+  }
+
+  Future<void> _handlePermission() async {
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      await Geolocator.openLocationSettings();
+      return;
+    }
+
+    LocationPermission permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+    }
+  }
+
+  @override
+  Future<void> close() {
+    _positionStream?.cancel();
+    return super.close();
   }
 }

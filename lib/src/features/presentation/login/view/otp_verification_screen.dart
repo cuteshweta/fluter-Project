@@ -46,7 +46,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
           AppSharedPreference.instance?.setAccessToken(
             state.user.authorizedkeys ?? "",
           );
-
+          AppSharedPreference.instance?.setUserName(state.user.name ?? "");
           AppSharedPreference.instance?.setUserId(args.userId ?? "");
           Navigator.pushReplacementNamed(context, '/dashboard');
         }

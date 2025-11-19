@@ -52,7 +52,7 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
     }
 
     final request = AttendanceReportRequest(
-      userId: "1398",//AppSharedPreference.instance!.getUserId(), // Replace with actual logged-in user ID
+      userId: AppSharedPreference.instance?.getUserId() ?? "", // Replace with actual logged-in user ID
       fromDate: _formatter.format(_fromDate!),
       toDate: _formatter.format(_toDate!),
     );

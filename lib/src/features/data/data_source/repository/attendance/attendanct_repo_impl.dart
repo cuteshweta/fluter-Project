@@ -38,17 +38,6 @@ class AttendanceRepoImpl extends AttendanceRepoAbstract {
     }
   }
 
-  // @override
-  // Future<Either<Failure, AttendanceHistory>> attendanceReport({
-  // // required String? userId, required String? fdate,required String? tdate
-  // required AttendanceHistory request,
-  // }) async {
-  //   try {
-  //     return await  attendanceApiImpl.attendanceReport(request:request);
-  //   } catch (e) {
-  //     return Left(Failure("$UNEXPECTED_ERROR:${e.toString()}"));
-  //   }
-  // }
   @override
   Future<Either<Failure, List<AttendanceHistory>>> attendanceReport({
     required AttendanceReportRequest request,

@@ -15,9 +15,6 @@ abstract class AttendanceRepoAbstract {
     required MarkAttendanceRequest request,
   });
 
-  // Future<Either<Failure, AttendanceHistory>> attendanceReport({
-  //   required AttendanceHistory request,
-  // });
   Future<Either<Failure, List<AttendanceHistory>>> attendanceReport({
     required AttendanceReportRequest request,
   });
