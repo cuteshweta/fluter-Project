@@ -27,3 +27,16 @@ class LeaveSuccessState extends LeaveState {
   @override
   List<Object?> get props => [model];
 }
+class LeaveReportLoading extends LeaveState {}
+
+class LeaveReportSuccess extends LeaveState {
+  final List<LeaveHistory> responseModel;
+
+  LeaveReportSuccess({required this.responseModel});
+}
+
+class LeaveReportError extends LeaveState {
+  final String msg;
+
+  LeaveReportError({required this.msg});
+}

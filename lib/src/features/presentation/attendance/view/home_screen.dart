@@ -23,14 +23,18 @@ class _HomeScreenState extends State<HomeScreen> {
   double? currentLat;
   double? currentLong;
   bool isWithInDistance = false;
+  String? _selectedCompanyBranch;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    context.read<AttendanceBloc>().add(FetchCompanyLocationEvent());
+    // context.read<AttendanceBloc>().add(FetchCompanyLocationEvent());
+    context.read<AttendanceBloc>().add(FetchCompanyBranchEvent());
     // _startLocationUpdates();
   }
+
+  final List<String> _companyBranchList = ["Select Company Branch"];
 
   @override
   Widget build(BuildContext context) {
@@ -61,6 +65,16 @@ class _HomeScreenState extends State<HomeScreen> {
           isWithInDistance = state.isLocationUnder;
           currentLat = state.currentLocationLatitude;
           currentLong = state.currentLocationLongitude;
+        }
+
+        AppSharedPreference.instance?.setCompanyBranch(
+          _selectedCompanyBranch ?? "",
+        );
+
+        if (state.companyBranchList != null && state.companyBranchList!.isNotEmpty) {
+          for (var list in state.companyBranchList!) {
+            _companyBranchList.add(list.companyBranchName ?? "");
+          }
         }
       },
       builder: (context, state) {
@@ -146,6 +160,25 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       child: Center(
                         child: GestureDetector(
+                          // onTap: () async {
+                          //   if (state is FetchCurrentLocationState &&
+                          //       state.isLocationUnder) {
+                          //     context.read<AttendanceBloc>().add(
+                          //       MarkAttendanceEvent(
+                          //         request: MarkAttendanceRequest(
+                          //           AppSharedPreference.instance?.getUserId(),
+                          //           "P",
+                          //           AppSharedPreference.instance
+                          //               ?.getCompanyBranch(),
+                          //           companyLat,
+                          //           companyLong,
+                          //           currentLat,
+                          //           currentLong,
+                          //         ),
+                          //       ),
+                          //     );
+                          //   }
+                          // },
                           onTap: () async {
                             if (state is FetchCurrentLocationState &&
                                 state.isLocationUnder) {
@@ -155,7 +188,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     AppSharedPreference.instance?.getUserId(),
                                     "P",
                                     AppSharedPreference.instance
-                                        ?.getCompanyName(),
+                                        ?.getCompanyBranch(),
                                     companyLat,
                                     companyLong,
                                     currentLat,
@@ -194,6 +227,42 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
 
+                    const SizedBox(height: 60,),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(color: Colors.grey.shade300),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: DropdownButtonFormField<String>(
+                        value: _selectedCompanyBranch,
+                        isExpanded: true,
+                        icon: const Icon(Icons.keyboard_arrow_down_rounded),
+                        items: _companyBranchList.map((String value) {
+                          return DropdownMenuItem<String>(
+                            value: value == "Select Company Branch" ? null : value,
+                            child: Text(value),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedCompanyBranch = value;
+                          });
+                          AppSharedPreference.instance?.setCompanyBranch(_selectedCompanyBranch!);
+                          if (value != "Select Company Branch") {
+                            // Trigger API here
+                            context.read<AttendanceBloc>().add(FetchCompanyLocationEvent());
+                          }
+                        },
+                        validator: (value) {
+                          if (value == null || value == "Select Company Branch") {
+                            return "Please select company Branch";
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
                     const SizedBox(height: 60),
 
                     // Bottom stats row
@@ -217,6 +286,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ],
                     ),
+
 
                     const Spacer(),
 

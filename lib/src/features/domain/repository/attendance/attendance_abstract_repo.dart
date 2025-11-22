@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:haritashr/src/core/network/Failure.dart';
+import 'package:haritashr/src/features/domain/entities/attendance/response/company_branch_list.dart';
 import 'package:haritashr/src/features/domain/entities/attendance/response/fetch_company_location_response.dart';
 import 'package:haritashr/src/features/domain/entities/attendance/response/mark_attendance_response.dart';
 
@@ -18,4 +19,6 @@ abstract class AttendanceRepoAbstract {
   Future<Either<Failure, List<AttendanceHistory>>> attendanceReport({
     required AttendanceReportRequest request,
   });
+
+  Future<Either<Failure, List<CompanyBranchList>>> requestCompanyBranchList();
 }

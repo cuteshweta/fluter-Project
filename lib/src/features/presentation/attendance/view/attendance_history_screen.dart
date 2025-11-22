@@ -9,6 +9,7 @@ import 'package:haritashr/src/features/domain/entities/attendance/request/attend
 class AttendanceHistoryScreen extends StatefulWidget {
   const AttendanceHistoryScreen({Key? key}) : super(key: key);
 
+
   @override
   State<AttendanceHistoryScreen> createState() => _AttendanceHistoryScreenState();
 }

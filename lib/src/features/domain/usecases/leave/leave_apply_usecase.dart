@@ -2,7 +2,9 @@ import 'package:dartz/dartz.dart';
 import 'package:haritashr/src/core/network/Failure.dart';
 import 'package:haritashr/src/features/domain/entities/leave/response/leave_response_model.dart';
 
+import '../../entities/leave/request/leave_report_request.dart';
 import '../../entities/leave/request/leave_request_model.dart';
+import '../../entities/leave/response/leave_history.dart';
 import '../../repository/leave/abstract_leave_apply_repo.dart';
 
 class LeaveApplyUseCase {
@@ -23,5 +25,11 @@ class LeaveApplyUseCase {
         return Right(r);
       },
     );
+  }
+
+  Future<Either<Failure, List<LeaveHistory>>> leaveReport({
+    required LeaveReportRequest request,
+  }) {
+    return repo.leaveReport(request: request);
   }
 }

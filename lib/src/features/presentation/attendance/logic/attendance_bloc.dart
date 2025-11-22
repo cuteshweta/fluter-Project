@@ -6,6 +6,7 @@ import 'package:equatable/equatable.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:haritashr/src/features/domain/entities/attendance/request/mark_attendance_request.dart';
 import 'package:haritashr/src/features/domain/entities/attendance/response/attendance_history.dart';
+import 'package:haritashr/src/features/domain/entities/attendance/response/company_branch_list.dart';
 import 'package:haritashr/src/features/domain/entities/attendance/response/fetch_company_location_response.dart';
 import 'package:haritashr/src/features/domain/entities/attendance/response/mark_attendance_response.dart';
 import 'package:haritashr/src/features/domain/usecases/attendance/attendance_master_usecases.dart';
@@ -20,12 +21,13 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
   AttendanceMasterUserCase userCase;
   StreamSubscription<Position>? _positionStream;
 
-  AttendanceBloc(this.userCase) : super(AttendanceState()) {
+  AttendanceBloc(this.userCase) : super(const AttendanceState()) {
     on<FetchCompanyLocationEvent>(_onFetchCompanyLocation);
     on<MarkAttendanceEvent>(_onMarkAttendance);
     on<CurrentLocationEvent>(_onCurrentLocation);
     on<AttendanceReportEvent>(_onAttendanceReport);
     on<FetchCurrentLocationEvent>(_onFetchCurrentLocation);
+    on<FetchCompanyBranchEvent>(_onFetchCompanyBranch);
     on<UpdateLocationEvent>((event, emit) {
       emit(FetchCurrentLocationState(
         isLocationUnder: event.isInside,
@@ -161,6 +163,20 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
       permission = await Geolocator.requestPermission();
     }
   }
+  Future<void> _onFetchCompanyBranch(
+      FetchCompanyBranchEvent event,
+      Emitter<AttendanceState> emit,
+      ) async {
+    emit(CompanyBranchLoading());
+
+    final result = await userCase.getCompanyBranchList();
+
+    result.fold(
+          (failure) => emit(CompanyBranchError(msg: failure.errorMessage)),
+          (success) => emit(FetchCompanyBranchSuccess(companyBranchList: success)),
+    );
+  }
+
 
   @override
   Future<void> close() {

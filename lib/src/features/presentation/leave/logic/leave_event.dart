@@ -13,3 +13,12 @@ class LeaveApplyEvent extends LeaveEvent {
   // TODO: implement props
   List<Object?> get props => [model];
 }
+class LeaveReportEvent extends LeaveEvent {
+  final LeaveReportRequest request;
+
+  LeaveReportEvent({required this.request});
+
+  @override
+  // TODO: implement props
+  List<Object?> get props => [request];
+}

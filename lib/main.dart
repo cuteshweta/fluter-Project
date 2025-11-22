@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:device_preview/device_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -19,6 +21,7 @@ void main() async {
   // init injection
   WidgetsFlutterBinding.ensureInitialized();
   await initInjections();
+  HttpOverrides.global = MyHttpOverrides();
   runApp(
     DevicePreview(
       builder: (context) {
@@ -83,10 +86,22 @@ class MyApp extends StatelessWidget {
         ),
         '/leaveRequest': (_) => BlocProvider(
           create: (_) => LeaveBloc(sl()),
-          child: LeaveRequestScreen(),
+          child: LeaveRequestScreen(screenType: 'leave',),
+        ),
+        '/leaveRequestHistory': (_) => BlocProvider(
+          create: (_) => LeaveBloc(sl()),
+          child: LeaveRequestScreen(screenType: 'history',),
         ),
         '/dashboard': (_) => const DashboardScreen(),
       },
     );
+  }
+}
+class MyHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)
+      ..badCertificateCallback =
+          (X509Certificate cert, String host, int port) => true;
   }
 }

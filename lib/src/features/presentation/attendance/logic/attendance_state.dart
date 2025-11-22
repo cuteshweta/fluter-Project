@@ -1,82 +1,131 @@
 part of 'attendance_bloc.dart';
 
 class AttendanceState extends Equatable {
-  const AttendanceState();
+  final List<CompanyBranchList>? companyBranchList;
+  final bool isLoading;
+
+  const AttendanceState({
+    this.companyBranchList,
+    this.isLoading = false,
+  });
 
   @override
-  // TODO: implement props
-  List<Object?> get props => [];
+  List<Object?> get props => [companyBranchList, isLoading];
 }
 
-class CompanyLocationFetching extends AttendanceState {
-  bool? isLoading = false;
+// ---------------- Company Branch States ----------------
 
-  CompanyLocationFetching({this.isLoading = false});
+// Loading state
+class CompanyBranchLoading extends AttendanceState {}
+
+// Success state with data
+class FetchCompanyBranchSuccess extends AttendanceState {
+  final List<CompanyBranchList> companyBranchList;
+
+  const FetchCompanyBranchSuccess({required this.companyBranchList});
 
   @override
-  List<Object> get props => [isLoading ?? false];
+  List<Object?> get props => [companyBranchList];
 }
 
-class CompanyLocationError extends AttendanceState {
-  String msg;
+// Error state
+class CompanyBranchError extends AttendanceState {
+  final String msg;
 
-  CompanyLocationError({this.msg = ""});
+  const CompanyBranchError({required this.msg});
 
   @override
   List<Object?> get props => [msg];
 }
 
-class CompanyLocationSuccess extends AttendanceState {
-  FetchCompanyLocationResponseModel responseModel;
+// ---------------- Company Location States ----------------
 
-  CompanyLocationSuccess({required this.responseModel});
+class CompanyLocationFetching extends AttendanceState {
+  const CompanyLocationFetching({bool isLoading = true})
+      : super(isLoading: isLoading);
+
+  @override
+  List<Object?> get props => [isLoading];
+}
+
+class CompanyLocationSuccess extends AttendanceState {
+  final FetchCompanyLocationResponseModel responseModel;
+
+  const CompanyLocationSuccess({required this.responseModel});
 
   @override
   List<Object?> get props => [responseModel];
 }
 
-class MarkAttendanceSuccess extends AttendanceState {
-  MarkAttendanceResponseModel responseModel;
+class CompanyLocationError extends AttendanceState {
+  final String msg;
 
-  MarkAttendanceSuccess({required this.responseModel});
+  const CompanyLocationError({required this.msg});
 
   @override
-  // TODO: implement props
-  List<Object?> get props => [this.responseModel];
+  List<Object?> get props => [msg];
 }
 
-class CurrentLocationState extends AttendanceState {
-  double difference;
+// ---------------- Mark Attendance State ----------------
 
-  CurrentLocationState({required this.difference});
+class MarkAttendanceSuccess extends AttendanceState {
+  final MarkAttendanceResponseModel responseModel;
+
+  const MarkAttendanceSuccess({required this.responseModel});
+
+  @override
+  List<Object?> get props => [responseModel];
+}
+
+// ---------------- Current Location State ----------------
+
+class CurrentLocationState extends AttendanceState {
+  final double difference;
+
+  const CurrentLocationState({required this.difference});
 
   @override
   List<Object> get props => [difference];
 }
 
-class AttendanceReportLoading extends AttendanceState {}
+// ---------------- Attendance Report States ----------------
+
+class AttendanceReportLoading extends AttendanceState {
+  const AttendanceReportLoading() : super(isLoading: true);
+}
 
 class AttendanceReportSuccess extends AttendanceState {
   final List<AttendanceHistory> responseModel;
 
   const AttendanceReportSuccess({required this.responseModel});
+
+  @override
+  List<Object?> get props => [responseModel];
 }
 
 class AttendanceReportError extends AttendanceState {
   final String msg;
 
   const AttendanceReportError({required this.msg});
+
+  @override
+  List<Object?> get props => [msg];
 }
+
+// ---------------- Live Location Tracking State ----------------
 
 class FetchCurrentLocationState extends AttendanceState {
   final double currentLocationLatitude;
   final double currentLocationLongitude;
   final bool isLocationUnder;
 
-
   const FetchCurrentLocationState({
     required this.isLocationUnder,
     required this.currentLocationLatitude,
     required this.currentLocationLongitude,
   });
+
+  @override
+  List<Object?> get props =>
+      [isLocationUnder, currentLocationLatitude, currentLocationLongitude];
 }

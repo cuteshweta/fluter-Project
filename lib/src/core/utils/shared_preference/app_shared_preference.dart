@@ -9,6 +9,7 @@ class AppSharedPreference {
   final String _DEVICE_ID = "uniqueDeviceId";
   final String _USER_NAME="name";
   final String _PUNCH_IN = "isPunchIn";
+  final String _COMPANY_BRANCH="companyBranch";
 
   AppSharedPreference._internal(this.sharedPreferences);
 
@@ -31,6 +32,14 @@ class AppSharedPreference {
 
   String getCompanyName() {
     return sharedPreferences.getString(_COMPANY_NAME) ?? "";
+  }
+
+  Future<void> setCompanyBranch(String companyBranch) async {
+    await sharedPreferences.setString(_COMPANY_BRANCH, companyBranch);
+  }
+
+  String getCompanyBranch() {
+    return sharedPreferences.getString(_COMPANY_BRANCH) ?? "";
   }
 
   Future<void> setUserName(String name) async {

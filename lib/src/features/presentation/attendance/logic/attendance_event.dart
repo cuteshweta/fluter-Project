@@ -10,6 +10,15 @@ class FetchCompanyLocationEvent extends AttendanceEvent {
   List<Object?> get props => [];
 }
 
+
+class FetchCompanyBranchEvent extends AttendanceEvent {
+  const FetchCompanyBranchEvent();
+
+  @override
+  // TODO: implement props
+  List<Object?> get props => [];
+}
+
 class MarkAttendanceEvent extends AttendanceEvent {
   MarkAttendanceRequest request;
 

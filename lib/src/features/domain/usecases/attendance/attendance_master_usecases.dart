@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:haritashr/src/core/network/Failure.dart';
 import 'package:haritashr/src/core/utils/shared_preference/app_shared_preference.dart';
+import 'package:haritashr/src/features/domain/entities/attendance/response/company_branch_list.dart';
 import 'package:haritashr/src/features/domain/entities/attendance/response/fetch_company_location_response.dart';
 import 'package:haritashr/src/features/domain/entities/attendance/response/mark_attendance_response.dart';
 
@@ -16,8 +17,10 @@ class AttendanceMasterUserCase {
 
   Future<Either<Failure, FetchCompanyLocationResponseModel>>
   fetchCompanyLocation() async {
+    // print(AppSharedPreference.instance?.getCompanyBranch());
+    // print("djngrjkd");
     final result = await attendanceRepo.fetchCompanyLocation(
-      companyName: AppSharedPreference.instance?.getCompanyName() ?? "",
+      companyName: AppSharedPreference.instance?.getCompanyBranch() ?? "",
     );
 
     return result.fold(
@@ -48,5 +51,17 @@ class AttendanceMasterUserCase {
     required AttendanceReportRequest request,
   }) {
     return attendanceRepo.attendanceReport(request: request);
+  }
+
+  Future<Either<Failure, List<CompanyBranchList>>> getCompanyBranchList() async {
+    final result = await attendanceRepo.requestCompanyBranchList();
+    return result.fold(
+          (l) {
+        return Left(l);
+      },
+          (r) async {
+        return Right(r);
+      },
+    );
   }
 }

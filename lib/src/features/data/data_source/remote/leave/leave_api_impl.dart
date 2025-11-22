@@ -12,7 +12,10 @@ import '../../../../../core/utils/shared_preference/app_shared_preference.dart';
 import 'package:haritashr/src/core/utils/contants/network_constant.dart'
     as network;
 
+import '../../../../domain/entities/leave/request/leave_report_request.dart';
 import '../../../../domain/entities/leave/request/leave_request_model.dart';
+import '../../../../domain/entities/leave/response/leave_history.dart';
+import '../../../../domain/entities/leave/response/leave_history_response.dart';
 import '../../../../domain/entities/leave/response/leave_response_model.dart';
 
 class LeaveApiImpl extends AbstractLeaveApi {
@@ -35,7 +38,7 @@ class LeaveApiImpl extends AbstractLeaveApi {
         ),
         data: model.toJson(),
       );
-      print(model.toJson());
+      print(model);
 
       var data = result.data;
 
@@ -55,5 +58,45 @@ class LeaveApiImpl extends AbstractLeaveApi {
       return Left(Failure("$UNEXPECTED_ERROR:${e.toString()}"));
     }
     throw UnimplementedError();
+  }
+  Future<Either<Failure, List<LeaveHistory>>> leaveReport({
+    required LeaveReportRequest request,
+  }) async {
+    try {
+      Map<String, dynamic> mapHeaders = {};
+      mapHeaders['TOKEN'] = AppSharedPreference.instance?.getAccessToken();
+
+      final response = await dio.appApi.post(
+        network.leaveHistory,
+        options: Options(
+          contentType: Headers.formUrlEncodedContentType,
+          headers: mapHeaders,
+        ),
+        data: request.toJson(),
+      );
+      print(request.toJson());
+      var data = response.data;
+
+      String fixed = response.data.replaceAllMapped(
+        RegExp(r'"date":\s*(\d{4}-\d{2}-\d{2})'),
+            (match) => '"date": "${match.group(1)}"',
+      );
+      if (data is String) {
+        try {
+          data = jsonDecode(fixed);
+        } catch (e) {
+          return Left(Failure("Invalid response from server"));
+        }
+      }
+      final resultData = LeaveHistoryResponse.fromJson(data);
+
+      if (resultData.status == 1) {
+        return Right(resultData.result ?? []);
+      } else {
+        return Left(Failure("Something went wrong"));
+      }
+    } catch (e) {
+      return Left(Failure("Unexpected error: $e"));
+    }
   }
 }

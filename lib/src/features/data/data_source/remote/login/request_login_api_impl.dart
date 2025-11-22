@@ -62,13 +62,14 @@ class LoginApiImpl extends AbstractRequestLoginApi {
         options: Options(contentType: Headers.formUrlEncodedContentType),
       );
       var data = result.data;
+
       if (data is String) {
         data = jsonDecode(data);
       }
       if (data == null) {
         return Left(Failure("Unexcepted error"));
       }
-
+      print(data);
       final responseData = CompanyResponse.fromJson(data);
       if (responseData.status == 1) {
         return Right(responseData.result ?? []);

@@ -81,14 +81,20 @@ class DashboardScreen extends StatelessWidget {
                       Navigator.pushNamed(context, '/homeScreen');
                     },
                   ),
-                  /* _buildDashboardTile(
-                    icon: Icons.approval,
-                    label: 'Regularization Approval',
+                   _buildDashboardTile(
+                    icon: Icons.calendar_view_week_rounded,
+                    label: 'Leave Request History',
+                     onTabFun: () {
+                       Navigator.pushNamed(context, '/leaveRequestHistory', arguments: "leave");
+                     },
                   ),
                   _buildDashboardTile(
-                    icon: Icons.list_alt_outlined,
-                    label: 'Regularization Listing',
-                  ),*/
+                    icon: Icons.calendar_view_week_sharp,
+                    label: 'OD Request History',
+                    onTabFun: () {
+                      Navigator.pushNamed(context, '/leaveRequestHistory', arguments: "od");
+                    },
+                  ),
                 ],
               ),
             ),
