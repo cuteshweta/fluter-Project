@@ -4,11 +4,12 @@ part 'leave_history.g.dart';
 
 @JsonSerializable(fieldRename: FieldRename.snake)
 class LeaveHistory {
-  final String? date;
+  final String? fdate;
+  final String? tdate;
   // @JsonKey(name: "companyname")
   String? status;
 
-  LeaveHistory(this.date, this.status);
+  LeaveHistory(this.fdate, this.tdate, this.status);
 
   factory LeaveHistory.fromJson(json) => _$LeaveHistoryFromJson(json);
 

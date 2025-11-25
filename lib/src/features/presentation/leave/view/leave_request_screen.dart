@@ -10,8 +10,8 @@ import '../logic/leave_bloc.dart';
 
 class LeaveRequestScreen extends StatefulWidget {
   final String screenType;
-  const LeaveRequestScreen({super.key, required this.screenType});
 
+  const LeaveRequestScreen({super.key, required this.screenType});
 
   @override
   State<LeaveRequestScreen> createState() {
@@ -167,7 +167,7 @@ class _LeaveRequestScreenState extends State<LeaveRequestScreen> {
 
                 TextField(
                   controller: reasonController,
-                  decoration: _inputDecoration("Reason for leave"),
+                  decoration: _inputDecoration("Reason for $type"),
                 ),
 
                 /*
@@ -252,7 +252,7 @@ class _LeaveRequestScreenState extends State<LeaveRequestScreen> {
                                   toDate != null
                                       ? "${toDate!.year}-${toDate!.month}-${toDate!.day}"
                                       : "",
-                                    reasonController.text,
+                                  reasonController.text,
                                 ),
                               ),
                             );
@@ -326,13 +326,13 @@ class _LeaveRequestScreenState extends State<LeaveRequestScreen> {
   }
 }
 
-class _LeaveRequestHistoryScreenState extends State<LeaveRequestScreen>{
+class _LeaveRequestHistoryScreenState extends State<LeaveRequestScreen> {
   DateTime? _fromDate;
   DateTime? _toDate;
 
   final DateFormat _formatter = DateFormat('yyyy-MM-dd');
-  String type = "leave";  // 👈 Class level
-  String heading = "L";   // 👈 Class level
+  String type = "leave"; // 👈 Class level
+  String heading = "L"; // 👈 Class level
 
   @override
   void didChangeDependencies() {
@@ -369,23 +369,21 @@ class _LeaveRequestHistoryScreenState extends State<LeaveRequestScreen>{
 
   void _loadAttendance() {
     if (_fromDate == null || _toDate == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Please select both dates')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Please select both dates')));
       return;
     }
 
     final request = LeaveReportRequest(
-
-      userId: AppSharedPreference.instance?.getUserId() ?? "", // Replace with actual logged-in user ID
+      userId: AppSharedPreference.instance?.getUserId() ?? "",
+      // Replace with actual logged-in user ID
       fromDate: _formatter.format(_fromDate!),
       toDate: _formatter.format(_toDate!),
-        leaveType: (type == "leave") ? "L" : "OD",
+      leaveType: (type == "leave") ? "L" : "OD",
     );
 
-    context.read<LeaveBloc>().add(
-      LeaveReportEvent(request: request),
-    );
+    context.read<LeaveBloc>().add(LeaveReportEvent(request: request));
   }
 
   @override
@@ -400,8 +398,17 @@ class _LeaveRequestHistoryScreenState extends State<LeaveRequestScreen>{
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(type == "leave" ? "Leave Report" : "OD Leave Report",style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),),
-        backgroundColor: Colors.redAccent,
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black87),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Text(
+          type == "leave" ? "Leave Report" : "OD Leave Report",
+          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
+        ),
+        centerTitle: false,
       ),
       body: Column(
         children: [
@@ -422,9 +429,11 @@ class _LeaveRequestHistoryScreenState extends State<LeaveRequestScreen>{
                         border: Border.all(color: Colors.grey),
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: Text(_fromDate == null
-                          ? "From Date"
-                          : _formatter.format(_fromDate!)),
+                      child: Text(
+                        _fromDate == null
+                            ? "From Date"
+                            : _formatter.format(_fromDate!),
+                      ),
                     ),
                   ),
                 ),
@@ -438,9 +447,11 @@ class _LeaveRequestHistoryScreenState extends State<LeaveRequestScreen>{
                         border: Border.all(color: Colors.grey),
                         borderRadius: BorderRadius.circular(8),
                       ),
-                      child: Text(_toDate == null
-                          ? "To Date"
-                          : _formatter.format(_toDate!)),
+                      child: Text(
+                        _toDate == null
+                            ? "To Date"
+                            : _formatter.format(_toDate!),
+                      ),
                     ),
                   ),
                 ),
@@ -458,8 +469,16 @@ class _LeaveRequestHistoryScreenState extends State<LeaveRequestScreen>{
               height: 48,
               child: ElevatedButton(
                 onPressed: _loadAttendance,
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.redAccent),
-                child: Text("Load Leave History",style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.redAccent,
+                ),
+                child: Text(
+                  "Load Leave History",
+                  style: TextStyle(
+                    color: Colors.black87,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ),
           ),
@@ -489,9 +508,18 @@ class _LeaveRequestHistoryScreenState extends State<LeaveRequestScreen>{
                       final item = state.responseModel[index];
 
                       return Card(
-                        margin: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        margin: EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
                         child: ListTile(
-                          title: Text("Date: ${item.date ?? ''}"),
+                          title: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text("From Date: ${item.fdate ?? ''}"),
+                              Text("To Date: ${item.tdate ?? ''}"),
+                            ],
+                          ),
                           subtitle: Text("Status: ${item.status ?? ''}"),
                         ),
                       );
@@ -504,48 +532,6 @@ class _LeaveRequestHistoryScreenState extends State<LeaveRequestScreen>{
             ),
           ),
         ],
-      ),
-      bottomNavigationBar: _buildBottomNav(context),
-    );
-  }
-  // Bottom Navigation Bar
-  Widget _buildBottomNav(BuildContext context) {
-    return Container(
-      decoration: const BoxDecoration(color: Colors.transparent),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-        child: Container(
-          height: 60,
-          decoration: BoxDecoration(
-            color: Colors.red,
-            borderRadius: BorderRadius.circular(30),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              IconButton(
-                icon: Icon(Icons.home, color: Colors.white),
-                onPressed: () {
-                  Navigator.pushReplacementNamed(context, '/homeScreen');
-                },
-              ),
-              SizedBox(width: 10),
-              IconButton(
-                icon: Icon(Icons.grid_view_rounded, color: Colors.white),
-                onPressed: () {
-                  Navigator.pushReplacementNamed(context, '/dashboard');
-                },
-              ),
-              SizedBox(width: 10),
-              IconButton(
-                icon: Icon(Icons.calendar_month, color: Colors.white),
-                onPressed: () {
-                  Navigator.pushReplacementNamed(context, '/history');
-                },
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }

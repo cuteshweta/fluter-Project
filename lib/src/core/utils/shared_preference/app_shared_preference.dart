@@ -93,21 +93,13 @@ class AppSharedPreference {
     return sharedPreferences.getBool("isPunchIn") ?? false;
   }
 
-  Future<void> clearAccessToken() async {
-    await sharedPreferences.remove(_ACCESS_TOEKN);
-  }
-
   Future<void> clearUserData() async {
     await sharedPreferences.remove(_USER_ID);
     await sharedPreferences.remove(_USER_NAME);
     await sharedPreferences.remove(_COMPANY_NAME);
-  }
-
-  Future<void> clearPunchIn() async {
+    await sharedPreferences.remove(_IS_USER_LOGIN);
     await sharedPreferences.remove(_PUNCH_IN);
-  }
-  Future<void> clearAll() async {
-    await sharedPreferences.clear();
+    await sharedPreferences.remove(_ACCESS_TOEKN);
   }
 
 

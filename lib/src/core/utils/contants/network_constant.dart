@@ -1,4 +1,4 @@
-const String apiUrl = "https://mavyn.in/online/haritashhr1/";
+const String apiUrl = "http://mavyn.in/online/haritashhr1/";
 
 const String loginAPi = "hrlogin.php";
 const String companyList = "companylist.php";

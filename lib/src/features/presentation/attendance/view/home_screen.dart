@@ -6,6 +6,8 @@ import 'package:geolocator/geolocator.dart';
 import 'package:haritashr/src/core/utils/shared_preference/app_shared_preference.dart';
 import 'package:haritashr/src/core/utils/utils/coman_snack_bar.dart';
 import 'package:haritashr/src/features/domain/entities/attendance/request/mark_attendance_request.dart';
+import 'package:haritashr/src/features/domain/entities/attendance/response/fetch_company_location_response.dart';
+import 'package:intl/intl.dart';
 
 import '../../../../shared/app_injection.dart';
 import '../logic/attendance_bloc.dart';
@@ -24,6 +26,12 @@ class _HomeScreenState extends State<HomeScreen> {
   double? currentLong;
   bool isWithInDistance = false;
   String? _selectedCompanyBranch;
+  String? punchIn = "";
+  String? punchOut = "";
+  String? totalPunchTime = "";
+
+  late Timer _timer;
+  DateTime _now = DateTime.now();
 
   @override
   void initState() {
@@ -31,14 +39,18 @@ class _HomeScreenState extends State<HomeScreen> {
     super.initState();
     // context.read<AttendanceBloc>().add(FetchCompanyLocationEvent());
     context.read<AttendanceBloc>().add(FetchCompanyBranchEvent());
+    _timer = Timer.periodic(Duration(seconds: 1), (_) {
+      setState(() {
+        _now = DateTime.now();
+      });
+    });
     // _startLocationUpdates();
   }
 
-  final List<String> _companyBranchList = ["Select Company Branch"];
+  final List<String> _companyBranchList = [];
 
   @override
   Widget build(BuildContext context) {
-    final now = DateTime.now();
     return BlocConsumer<AttendanceBloc, AttendanceState>(
       listener: (context, state) {
         if (state is CompanyLocationError) {
@@ -48,6 +60,9 @@ class _HomeScreenState extends State<HomeScreen> {
           companyLong = double.tryParse(
             state.responseModel.result?.long ?? "0.0",
           );
+          punchIn = state.responseModel.result?.punchin;
+          punchOut = state.responseModel.result?.punchout;
+          totalPunchTime = state.responseModel.result?.totaltime;
 
           context.read<AttendanceBloc>().add(
             FetchCurrentLocationEvent(
@@ -67,19 +82,54 @@ class _HomeScreenState extends State<HomeScreen> {
           currentLong = state.currentLocationLongitude;
         }
 
-        AppSharedPreference.instance?.setCompanyBranch(
-          _selectedCompanyBranch ?? "",
-        );
+        if (state.companyBranchList != null &&
+            state.companyBranchList!.isNotEmpty) {
+          _companyBranchList.clear();
 
-        if (state.companyBranchList != null && state.companyBranchList!.isNotEmpty) {
           for (var list in state.companyBranchList!) {
             _companyBranchList.add(list.companyBranchName ?? "");
           }
+
+          // Case A: Only one branch
+          if (_companyBranchList.length == 1) {
+            _selectedCompanyBranch = _companyBranchList.first;
+            AppSharedPreference.instance?.setCompanyBranch(
+              _selectedCompanyBranch!,
+            );
+
+            // Auto fetch company location
+            context.read<AttendanceBloc>().add(FetchCompanyLocationEvent());
+          }
+
+          // Case B: More than one branch → select first branch automatically
+          if (_companyBranchList.length > 1 && _selectedCompanyBranch == null) {
+            _selectedCompanyBranch = _companyBranchList.first;
+            AppSharedPreference.instance?.setCompanyBranch(
+              _selectedCompanyBranch!,
+            );
+
+            context.read<AttendanceBloc>().add(FetchCompanyLocationEvent());
+          }
+
+          setState(() {});
         }
       },
       builder: (context, state) {
         return Scaffold(
           backgroundColor: Colors.grey[50],
+          appBar: AppBar(
+            elevation: 0,
+            backgroundColor: Colors.transparent,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.black87),
+              onPressed: () => Navigator.pop(context),
+            ),
+            title: Text(
+              'Mark Attendance',
+              style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
+            ),
+            centerTitle: false,
+          ),
           body: Stack(
             children: [
               Padding(
@@ -89,43 +139,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 child: Column(
                   children: [
-                    // Top profile header
-                    Row(
-                      children: [
-                        const CircleAvatar(
-                          radius: 26, // replace with NetworkImage if needed
-                        ),
-                        const SizedBox(width: 12),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              AppSharedPreference.instance?.getUserName() ?? "",
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black87,
-                              ),
-                            ),
-                            Text(
-                              '',
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: Colors.blueGrey,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const Spacer(),
-                        const Icon(Icons.refresh, color: Colors.red, size: 24),
-                      ],
-                    ),
 
                     const SizedBox(height: 60),
 
                     // Current time
                     Text(
-                      "${now.hour.toString().padLeft(2, '0')}:${now.minute.toString().padLeft(2, '0')} AM",
+                      "${_now.hour.toString().padLeft(2, '0')}:${_now.minute.toString().padLeft(2, '0')} AM",
                       style: const TextStyle(
                         fontSize: 38,
                         fontWeight: FontWeight.w600,
@@ -133,8 +152,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ),
                     const SizedBox(height: 6),
-                    const Text(
-                      "Feb 01, 2024 - Thursday",
+                    Text(
+                      getCurrentFormattedDate(),
                       style: TextStyle(color: Colors.grey, fontSize: 14),
                     ),
 
@@ -160,74 +179,86 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       child: Center(
                         child: GestureDetector(
-                          // onTap: () async {
-                          //   if (state is FetchCurrentLocationState &&
-                          //       state.isLocationUnder) {
-                          //     context.read<AttendanceBloc>().add(
-                          //       MarkAttendanceEvent(
-                          //         request: MarkAttendanceRequest(
-                          //           AppSharedPreference.instance?.getUserId(),
-                          //           "P",
-                          //           AppSharedPreference.instance
-                          //               ?.getCompanyBranch(),
-                          //           companyLat,
-                          //           companyLong,
-                          //           currentLat,
-                          //           currentLong,
-                          //         ),
-                          //       ),
-                          //     );
-                          //   }
-                          // },
-                          onTap: () async {
-                            if (state is FetchCurrentLocationState &&
-                                state.isLocationUnder) {
-                              context.read<AttendanceBloc>().add(
-                                MarkAttendanceEvent(
-                                  request: MarkAttendanceRequest(
-                                    AppSharedPreference.instance?.getUserId(),
-                                    "P",
-                                    AppSharedPreference.instance
-                                        ?.getCompanyBranch(),
-                                    companyLat,
-                                    companyLong,
-                                    currentLat,
-                                    currentLong,
+                          onTap:
+                              (state is FetchCurrentLocationState &&
+                                  state.isLocationUnder)
+                              ? () {
+                                  context.read<AttendanceBloc>().add(
+                                    MarkAttendanceEvent(
+                                      request: MarkAttendanceRequest(
+                                        AppSharedPreference.instance
+                                            ?.getUserId(),
+                                        "P",
+                                        AppSharedPreference.instance
+                                            ?.getCompanyName(),
+                                        companyLat,
+                                        companyLong,
+                                        currentLat,
+                                        currentLong,
+                                      ),
+                                    ),
+                                  );
+                                }
+                              : null, // disabled
+                          child: Container(
+                            width: 160,
+                            height: 160,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color:
+                                  (state is FetchCurrentLocationState &&
+                                      state.isLocationUnder)
+                                  ? Colors.green.shade100
+                                  : Colors.grey.shade300,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.grey.withOpacity(0.2),
+                                  blurRadius: 12,
+                                  offset: Offset(0, 6),
+                                ),
+                              ],
+                            ),
+                            child: Center(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    Icons.touch_app,
+                                    size: 40,
+                                    color:
+                                        (state is FetchCurrentLocationState &&
+                                            state.isLocationUnder)
+                                        ? Colors.green
+                                        : Colors.grey,
                                   ),
-                                ),
-                              );
-                            }
-                          },
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(
-                                Icons.touch_app,
-                                size: 40,
-                                color: Colors.redAccent,
+                                  SizedBox(height: 8),
+                                  Text(
+                                    (state is FetchCurrentLocationState &&
+                                            state.isLocationUnder)
+                                        ? ((AppSharedPreference.instance
+                                                      ?.isPunchIN() ??
+                                                  false)
+                                              ? "PUNCH OUT"
+                                              : "PUNCH IN")
+                                        : "Outside",
+                                    style: TextStyle(
+                                      color:
+                                          (state is FetchCurrentLocationState &&
+                                              state.isLocationUnder)
+                                          ? Colors.green
+                                          : Colors.grey,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
                               ),
-                              const SizedBox(height: 8),
-                              Text(
-                                state is FetchCurrentLocationState &&
-                                        state.isLocationUnder
-                                    ? ((AppSharedPreference.instance
-                                                  ?.isPunchIN() ??
-                                              false)
-                                          ? "PUNCH OUT"
-                                          : "PUNCH IN")
-                                    : "OutSide",
-                                style: const TextStyle(
-                                  color: Colors.redAccent,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
+                            ),
                           ),
                         ),
                       ),
                     ),
 
-                    const SizedBox(height: 60,),
+                    const SizedBox(height: 60),
                     Container(
                       decoration: BoxDecoration(
                         color: Colors.white,
@@ -241,7 +272,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         icon: const Icon(Icons.keyboard_arrow_down_rounded),
                         items: _companyBranchList.map((String value) {
                           return DropdownMenuItem<String>(
-                            value: value == "Select Company Branch" ? null : value,
+                            value: value == "Select Company Branch"
+                                ? null
+                                : value,
                             child: Text(value),
                           );
                         }).toList(),
@@ -249,14 +282,19 @@ class _HomeScreenState extends State<HomeScreen> {
                           setState(() {
                             _selectedCompanyBranch = value;
                           });
-                          AppSharedPreference.instance?.setCompanyBranch(_selectedCompanyBranch!);
+                          AppSharedPreference.instance?.setCompanyBranch(
+                            _selectedCompanyBranch!,
+                          );
                           if (value != "Select Company Branch") {
                             // Trigger API here
-                            context.read<AttendanceBloc>().add(FetchCompanyLocationEvent());
+                            context.read<AttendanceBloc>().add(
+                              FetchCompanyLocationEvent(),
+                            );
                           }
                         },
                         validator: (value) {
-                          if (value == null || value == "Select Company Branch") {
+                          if (value == null ||
+                              value == "Select Company Branch") {
                             return "Please select company Branch";
                           }
                           return null;
@@ -268,30 +306,29 @@ class _HomeScreenState extends State<HomeScreen> {
                     // Bottom stats row
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: const [
+                      children: [
                         _TimeBox(
                           icon: Icons.access_time,
                           title: 'Punch In',
-                          time: '09:08 AM',
+                          time: punchIn ?? "",
                         ),
                         _TimeBox(
                           icon: Icons.access_time_filled,
                           title: 'Punch Out',
-                          time: '06:05 PM',
+                          time: punchOut ?? "",
                         ),
                         _TimeBox(
                           icon: Icons.timer_outlined,
                           title: 'Total Hours',
-                          time: '08:13',
+                          time: totalPunchTime ?? "",
                         ),
                       ],
                     ),
 
-
                     const Spacer(),
 
                     // Bottom Navigation
-                    _buildBottomNav(context),
+                    // _buildBottomNav(context),
                   ],
                 ),
               ),
@@ -358,7 +395,15 @@ class _HomeScreenState extends State<HomeScreen> {
     // _positionStream?.cancel();
     super.dispose();
   }
+
+  String getCurrentFormattedDate() {
+    DateTime now = DateTime.now();
+    final month = DateFormat('MMM dd, yyyy').format(now);
+    final dayName = DateFormat('EEEE').format(now);
+    return "$month - $dayName";
+  }
 }
+
 
 // Reusable widget for time info
 class _TimeBox extends StatelessWidget {

@@ -2,6 +2,7 @@ import 'package:dartz/dartz.dart';
 
 import 'package:haritashr/src/core/network/Failure.dart';
 import 'package:haritashr/src/core/utils/contants/error_constants.dart';
+import 'package:haritashr/src/features/domain/entities/leave/response/logout_response.dart';
 
 import 'package:haritashr/src/features/domain/entities/login/request/login_request.dart';
 import 'package:haritashr/src/features/domain/entities/login/request/verify_otp_request.dart';
@@ -48,9 +49,5 @@ class LoginRequestImpl extends RepositoryLoginAbstract {
     } catch (e) {
       return Left(Failure(UNEXPECTED_ERROR));
     }
-  }
-
-  Future<bool> logout(String token) {
-    return loginApiImpl.logout(token);
   }
 }

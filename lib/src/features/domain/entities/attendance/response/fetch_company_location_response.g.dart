@@ -30,6 +30,9 @@ FetchCompanyLocationItem _$FetchCompanyLocationItemFromJson(
   (json['lat'] as num?)?.toDouble(),
   json['long'] as String?,
   json['radiusmeter'] as String?,
+  json['punchin'] as String?,
+  json['punchout'] as String?,
+  json['totaltime'] as String?,
 );
 
 Map<String, dynamic> _$FetchCompanyLocationItemToJson(
@@ -38,4 +41,7 @@ Map<String, dynamic> _$FetchCompanyLocationItemToJson(
   'lat': instance.lat,
   'long': instance.long,
   'radiusmeter': instance.radiusmeter,
+  'punchin': instance.punchin,
+  'punchout': instance.punchout,
+  'totaltime': instance.totaltime,
 };

@@ -6,9 +6,10 @@ import 'package:haritashr/src/core/network/Failure.dart';
 import 'package:haritashr/src/core/network/dio_network.dart';
 import 'package:haritashr/src/core/utils/contants/error_constants.dart';
 import 'package:haritashr/src/core/utils/contants/network_constant.dart'
-as network;
+    as network;
 import 'package:haritashr/src/core/utils/shared_preference/app_shared_preference.dart';
 import 'package:haritashr/src/features/data/data_source/remote/login/abstract_request_login_api.dart';
+import 'package:haritashr/src/features/domain/entities/leave/response/logout_response.dart';
 import 'package:haritashr/src/features/domain/entities/login/request/login_request.dart';
 import 'package:haritashr/src/features/domain/entities/login/request/verify_otp_request.dart';
 import 'package:haritashr/src/features/domain/entities/login/response/company_list.dart';
@@ -24,8 +25,8 @@ class LoginApiImpl extends AbstractRequestLoginApi {
 
   @override
   Future<Either<Failure, LoginResponse>> requestOtp(
-      LoginRequest request,
-      ) async {
+    LoginRequest request,
+  ) async {
     try {
       final result = await dio.appApi.post(
         network.loginAPi,
@@ -84,7 +85,9 @@ class LoginApiImpl extends AbstractRequestLoginApi {
   }
 
   @override
-  Future<Either<Failure, VerifyOtpResponseModel>> verifyOtp(VerifyOtpRequestModel request) async {
+  Future<Either<Failure, VerifyOtpResponseModel>> verifyOtp(
+    VerifyOtpRequestModel request,
+  ) async {
     try {
       Map<String, String> headersMap = {};
       headersMap["Token"] = request.loginToken;
@@ -125,20 +128,41 @@ class LoginApiImpl extends AbstractRequestLoginApi {
   }
 
   @override
-  Future<bool> logout(String token) async {
+  Future<Either<Failure, LogoutResponse>> logout(String token) async {
     Map<String, String> headersMap = {};
-    headersMap["Token"] = AppSharedPreference.instance?.getAccessToken() ?? "";
-    final result = await dio.appApi.post(
-      network.logout,
-      options: Options(
-        contentType: Headers.formUrlEncodedContentType,
-        headers: headersMap,
-      ),
-      data: {
-        'userId': AppSharedPreference.instance?.getUserId() ?? "",
-        'companyname': AppSharedPreference.instance?.getCompanyName() ?? "",
-      },
-    );
-    return result.statusCode == 200;
+    headersMap["TOKEN"] = AppSharedPreference.instance?.getAccessToken() ?? "";
+    try {
+      final result = await dio.appApi.post(
+        network.logout,
+        options: Options(
+          contentType: Headers.formUrlEncodedContentType,
+          headers: headersMap,
+        ),
+        data: {
+          'userId': AppSharedPreference.instance?.getUserId() ?? "",
+          'companyname': AppSharedPreference.instance?.getCompanyName() ?? "",
+        },
+      );
+      var data = result.data;
+
+      if (data is String) {
+        data = jsonDecode(data);
+      }
+      if (data == null) {
+        return Left(Failure(UNEXPECTED_ERROR));
+      }
+
+      final responseData = LogoutResponse.fromJson(data);
+
+      if (responseData.success == "1") {
+        return Right(responseData);
+      } else {
+        return Left(Failure("${responseData.msg}"));
+      }
+    } on DioException catch (e) {
+      return Left(Failure("Unexpected error: ${e.toString()}"));
+    } catch (e) {
+      return Left(Failure("Unexpected error: ${e.toString()}"));
+    }
   }
 }

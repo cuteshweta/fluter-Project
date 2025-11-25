@@ -78,12 +78,17 @@ class LeaveApiImpl extends AbstractLeaveApi {
       var data = response.data;
 
       String fixed = response.data.replaceAllMapped(
-        RegExp(r'"date":\s*(\d{4}-\d{2}-\d{2})'),
-            (match) => '"date": "${match.group(1)}"',
+        RegExp(r'"fdate":\s*(\d{4}-\d{2}-\d{2})'),
+            (match) => '"fdate": "${match.group(1)}"',
+      );
+
+      String fixed1 =  fixed.replaceAllMapped(
+        RegExp(r'"tdate":\s*(\d{4}-\d{2}-\d{2})'),
+            (match) => '"tdate": "${match.group(1)}"',
       );
       if (data is String) {
         try {
-          data = jsonDecode(fixed);
+          data = jsonDecode(fixed1);
         } catch (e) {
           return Left(Failure("Invalid response from server"));
         }

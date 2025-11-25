@@ -1,5 +1,6 @@
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
+import 'package:haritashr/src/core/utils/shared_preference/app_shared_preference.dart';
 import 'package:haritashr/src/features/domain/entities/login/request/login_request.dart';
 import 'package:haritashr/src/features/domain/usecases/login/login_usecase.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -16,15 +17,15 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
   final LoginUseCases useCases;
   final LogoutUseCase logoutUseCase;
 
-
-  LoginBloc(this.useCases,this.logoutUseCase) : super(const LoginState()) {
+  LoginBloc(this.useCases, this.logoutUseCase) : super(const LoginState()) {
     on<LoginRequested>(_onLoginRequested);
     on<CompanyListRequested>(_onCompanyListRequest);
-    on<LogoutRequested>(_onLogoutRequested);
   }
 
-  Future<void> _onLoginRequested(LoginRequested event,
-      Emitter<LoginState> emit,) async {
+  Future<void> _onLoginRequested(
+    LoginRequested event,
+    Emitter<LoginState> emit,
+  ) async {
     // ✅ Validation check before API call
     if (event.loginRequest.mobileNo.isEmpty ||
         event.loginRequest.mobileNo.length != 10) {
@@ -39,54 +40,26 @@ class LoginBloc extends Bloc<LoginEvent, LoginState> {
     final result = await useCases.requestLogin(event.loginRequest);
 
     result.fold(
-          (failure) =>
+      (failure) =>
           emit(state.copyWith(isLoading: false, error: failure.errorMessage)),
-          (response) =>
+      (response) =>
           emit(state.copyWith(isLoading: false, loginResponse: response)),
     );
   }
 
-  Future<void> _onCompanyListRequest(CompanyListRequested event,
-      Emitter<LoginState> emit,) async {
+  Future<void> _onCompanyListRequest(
+    CompanyListRequested event,
+    Emitter<LoginState> emit,
+  ) async {
     emit(state.copyWith(isCompanyListFetch: true, error: null));
     final result = await useCases.getCompanyList();
 
     result.fold(
-          (ifLeft) =>
-          emit(state.copyWith(
-              isCompanyListFetch: false, error: ifLeft.errorMessage)),
-          (ifRight) =>
+      (ifLeft) => emit(
+        state.copyWith(isCompanyListFetch: false, error: ifLeft.errorMessage),
+      ),
+      (ifRight) =>
           emit(state.copyWith(isCompanyListFetch: false, list: ifRight)),
     );
-  }
-  Future<void> _onLogoutRequested(
-      LogoutRequested event, Emitter<LoginState> emit) async {
-    emit(state.copyWith(isLogoutLoading: true, error: null));
-
-    final prefs = await SharedPreferences.getInstance();
-    String? token = prefs.getString("token");
-
-    if (token == null) {
-      emit(state.copyWith(
-        isLogoutLoading: false,
-        error: "Token not found",
-      ));
-      return;
-    }
-
-    final result = await logoutUseCase.call(token);
-
-    if (result) {
-      await prefs.clear();
-      emit(state.copyWith(
-        isLogoutLoading: false,
-        isLogoutSuccess: true,
-      ));
-    } else {
-      emit(state.copyWith(
-        isLogoutLoading: false,
-        error: "Logout failed!",
-      ));
-    }
   }
 }

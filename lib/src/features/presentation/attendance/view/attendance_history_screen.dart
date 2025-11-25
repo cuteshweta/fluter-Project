@@ -67,8 +67,17 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Attendance Report',style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),),
-        backgroundColor: Colors.redAccent,
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black87),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Text(
+          'Attendance Report',
+          style: TextStyle(color: Colors.black87, fontWeight: FontWeight.bold),
+        ),
+        centerTitle: false,
       ),
       body: Column(
         children: [
@@ -172,7 +181,7 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: _buildBottomNav(context),
+      // bottomNavigationBar: _buildBottomNav(context),
     );
   }
   // Bottom Navigation Bar

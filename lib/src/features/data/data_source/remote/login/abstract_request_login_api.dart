@@ -1,5 +1,6 @@
 import 'package:dartz/dartz.dart';
 import 'package:haritashr/src/core/network/Failure.dart';
+import 'package:haritashr/src/features/domain/entities/leave/response/logout_response.dart';
 import 'package:haritashr/src/features/domain/entities/login/request/login_request.dart';
 import 'package:haritashr/src/features/domain/entities/login/request/verify_otp_request.dart';
 import 'package:haritashr/src/features/domain/entities/login/response/company_list.dart';
@@ -14,5 +15,5 @@ abstract class AbstractRequestLoginApi {
 
   Future<Either<Failure, VerifyOtpResponseModel>> verifyOtp(VerifyOtpRequestModel request);
 
-  Future<bool> logout(String token);
+  Future<Either<Failure, LogoutResponse>> logout(String token);
 }

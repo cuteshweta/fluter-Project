@@ -7,12 +7,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:haritashr/src/core/utils/shared_preference/app_shared_preference.dart';
 import 'package:haritashr/src/features/presentation/attendance/logic/attendance_bloc.dart';
 import 'package:haritashr/src/features/presentation/attendance/view/attendance_history_screen.dart';
+import 'package:haritashr/src/features/presentation/dashboard/logic/dashboard_bloc.dart';
 import 'package:haritashr/src/features/presentation/leave/logic/leave_bloc.dart';
 import 'package:haritashr/src/features/presentation/login/logic/login_bloc.dart';
 import 'package:haritashr/src/features/presentation/login/logic/verify_otp/verify_otp_bloc.dart';
 import 'package:haritashr/src/features/presentation/login/view/login_screen.dart';
 import 'package:haritashr/src/features/presentation/login/view/otp_verification_screen.dart';
-import 'package:haritashr/src/presentation/views/dashboard_screen.dart';
+import 'package:haritashr/src/features/presentation/dashboard/view/dashboard_screen.dart';
 import 'package:haritashr/src/features/presentation/attendance/view/home_screen.dart';
 import 'package:haritashr/src/features/presentation/leave/view/leave_request_screen.dart';
 import 'package:haritashr/src/shared/app_injection.dart';
@@ -62,12 +63,20 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
       routes: {
-        '/': (_) => BlocProvider(
-          create: (_) => LoginBloc(sl(), sl()),
-          child: AppSharedPreference.instance?.getIsUserLogin() ?? false
-              ? const DashboardScreen()
-              : LoginScreen(),
-        ),
+        '/': (_) {
+          final isLoggedIn =
+              AppSharedPreference.instance?.getIsUserLogin() ?? false;
+
+          return BlocProvider(
+            create: (_) => LoginBloc(sl(), sl()),
+            child: isLoggedIn
+                ? BlocProvider(
+                    create: (_) => DashboardBloc(sl()),
+                    child: DashboardScreen(),
+                  )
+                : LoginScreen(),
+          );
+        },
         '/logout': (_) => BlocProvider(
           create: (_) => LoginBloc(sl(), sl()),
           child: const LoginScreen(),
@@ -86,17 +95,21 @@ class MyApp extends StatelessWidget {
         ),
         '/leaveRequest': (_) => BlocProvider(
           create: (_) => LeaveBloc(sl()),
-          child: LeaveRequestScreen(screenType: 'leave',),
+          child: LeaveRequestScreen(screenType: 'leave'),
         ),
         '/leaveRequestHistory': (_) => BlocProvider(
           create: (_) => LeaveBloc(sl()),
-          child: LeaveRequestScreen(screenType: 'history',),
+          child: LeaveRequestScreen(screenType: 'history'),
         ),
-        '/dashboard': (_) => const DashboardScreen(),
+        '/dashboard': (_) => BlocProvider(
+          create: (_) => DashboardBloc(sl()),
+          child: DashboardScreen(),
+        ),
       },
     );
   }
 }
+
 class MyHttpOverrides extends HttpOverrides {
   @override
   HttpClient createHttpClient(SecurityContext? context) {

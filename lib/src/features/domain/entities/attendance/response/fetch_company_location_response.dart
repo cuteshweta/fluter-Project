@@ -27,8 +27,18 @@ class FetchCompanyLocationItem {
   double? lat;
   String? long;
   String? radiusmeter;
+  String? punchin;
+  String? punchout;
+  String? totaltime;
 
-  FetchCompanyLocationItem(this.lat, this.long, this.radiusmeter);
+  FetchCompanyLocationItem(
+    this.lat,
+    this.long,
+    this.radiusmeter,
+    this.punchin,
+    this.punchout,
+    this.totaltime,
+  );
 
   factory FetchCompanyLocationItem.fromJson(json) =>
       _$FetchCompanyLocationItemFromJson(json);
