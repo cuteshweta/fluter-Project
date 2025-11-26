@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:ffi';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
@@ -130,7 +129,7 @@ class AttendanceBloc extends Bloc<AttendanceEvent, AttendanceState> {
             event.companyLocationLongitude,
           );
           // emit(CompanyLocationFetching(isLoading: false));
-          print("metter${event.companyMeter}");
+          // print("metter${event.companyMeter}");
           // if (distance >= (double.parse(event.companyMeter ?? "0.0"))) {
           //   emit(CompanyLocationError(msg: "Location is more than ${event.companyMeter}"));
           // }
