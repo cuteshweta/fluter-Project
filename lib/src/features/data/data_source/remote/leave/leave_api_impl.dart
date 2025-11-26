@@ -77,21 +77,21 @@ class LeaveApiImpl extends AbstractLeaveApi {
       print(request.toJson());
       var data = response.data;
 
-      String fixed = response.data.replaceAllMapped(
-        RegExp(r'"fdate":\s*(\d{4}-\d{2}-\d{2})'),
-            (match) => '"fdate": "${match.group(1)}"',
-      );
-
-      String fixed1 =  fixed.replaceAllMapped(
-        RegExp(r'"tdate":\s*(\d{4}-\d{2}-\d{2})'),
-            (match) => '"tdate": "${match.group(1)}"',
-      );
+      // String fixed = response.data.replaceAllMapped(
+      //   RegExp(r'"fdate":\s*(\d{4}-\d{2}-\d{2})'),
+      //       (match) => '"fdate": "${match.group(1)}"',
+      // );
+      //
+      // String fixed1 =  fixed.replaceAllMapped(
+      //   RegExp(r'"tdate":\s*(\d{4}-\d{2}-\d{2})'),
+      //       (match) => '"tdate": "${match.group(1)}"',
+      // );
       if (data is String) {
-        try {
-          data = jsonDecode(fixed1);
-        } catch (e) {
-          return Left(Failure("Invalid response from server"));
-        }
+        // try {
+          data = jsonDecode(data);
+        // } catch (e) {
+        //   return Left(Failure("Invalid response from server"));
+        // }
       }
       final resultData = LeaveHistoryResponse.fromJson(data);
 

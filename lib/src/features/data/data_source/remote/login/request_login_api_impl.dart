@@ -143,7 +143,7 @@ class LoginApiImpl extends AbstractRequestLoginApi {
           'companyname': AppSharedPreference.instance?.getCompanyName() ?? "",
         },
       );
-      var data = result.data;
+     var data = result.data;
 
       if (data is String) {
         data = jsonDecode(data);

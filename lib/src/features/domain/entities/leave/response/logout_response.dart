@@ -6,8 +6,9 @@ part 'logout_response.g.dart';
 class LogoutResponse{
   String? success;
   String? msg;
+  String? authorizedkeys;
 
-  LogoutResponse(this.success, this.msg);
+  LogoutResponse(this.success, this.msg, this.authorizedkeys);
   factory LogoutResponse.fromJson(json) => _$LogoutResponseFromJson(json);
 
   toJson() => _$LogoutResponseToJson(this);
